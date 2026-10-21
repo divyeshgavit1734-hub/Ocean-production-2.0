@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Ocean Production | Events & Special Effects</title>
+
+  <meta name="description"
+        content="Ocean Production provides event production and special effects services.">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #080b12;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #101827;
+      padding: 18px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid #283447;
+    }
+
+    .logo {
+      color: #ff7900;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: #ff7900;
+    }
+
+    .hero {
+      min-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 20px;
+      background:
+        radial-gradient(ellipse at top, #23354d 0%, #080b12 65%);
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 8vw, 68px);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 span {
+      color: #ff7900;
+    }
+
+    .hero p {
+      max-width: 650px;
+      color: #c4cad5;
+      font-size: 17px;
+      margin-bottom: 30px;
+    }
+
+    .button {
+      display: inline-block;
+      background: #ff7900;
+      color: #ffffff;
+      padding: 13px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      background: #e86700;
+    }
+
+    section {
+      padding: 55px 6%;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section-title span {
+      color: #ff7900;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #111827;
+      border: 1px solid #293548;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    .card h3 {
+      color: #ff7900;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: #c4cad5;
+      font-size: 14px;
+    }
+
+    .about {
+      text-align: center;
+      background: #0d1320;
+    }
+
+    .about p {
+      max-width: 750px;
+      margin: auto;
+      color: #c4cad5;
+    }
+
+    .contact {
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      background: #101827;
+      border-top: 1px solid #293548;
+      color: #aeb7c5;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        justify-content: center;
+      }
+
+      nav {
+        justify-content: center;
+      }
+
+      .hero {
+        min-height: 65vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">OCEAN PRODUCTION</div>
+
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <h1>Make Every Event <span>Unforgettable.</span></h1>
+
+      <p>
+        Professional event production and special effects
+        for celebrations, concerts, weddings and live events.
+      </p>
+
+      <a class="button" href="#contact">Explore Our Services</a>
+    </section>
+
+    <section id="services">
+      <h2 class="section-title">Our <span>Services</span></h2>
+
+      <div class="services">
+        <article class="card">
+          <h3>Stage Special Effects</h3>
+          <p>
+            Event effects and visual experiences planned
+            around your event requirements.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Confetti & CO₂ Effects</h3>
+          <p>
+            Special effects options for celebrations,
+            performances and grand entries.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Event Production</h3>
+          <p>
+            Production support for weddings, concerts,
+            parties and other events.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Event Planning Support</h3>
+          <p>
+            Tell us about your event, requirements
+            and budget so we can plan the next steps.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <h2 class="section-title">About <span>Us</span></h2>
+
+      <p>
+        Ocean Production focuses on event production
+        and special effects. Our goal is to help create
+        memorable experiences through careful planning,
+        coordination and professional execution.
+      </p>
+    </section>
+
+    <section class="contact" id="contact">
+      <h2 class="section-title">Plan Your <span>Event</span></h2>
+
+      <p style="margin-bottom: 22px; color: #c4cad5;">
+        Have an event coming up? Get in touch to discuss
+        your requirements and budget.
+      </p>
+
+      <a class="button" href="customer-registration.html">
+        Register Your Event
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Ocean Production. All rights reserved.</p>
+    <p>Event Production & Special Effects</p>
+  </footer>
+
+</body>
+</html>
