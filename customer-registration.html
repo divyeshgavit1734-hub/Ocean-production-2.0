@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration | Ocean Production</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #08111f;
+      color: #ffffff;
+      padding: 24px 14px;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 25px auto;
+      background: #111d30;
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px solid #263750;
+    }
+
+    h1 {
+      color: #ff9d00;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #c3ccda;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin: 17px 0 7px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #344762;
+      border-radius: 8px;
+      background: #091525;
+      color: white;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 15px;
+      background: #ff9d00;
+      color: #111111;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #message {
+      margin-top: 18px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .back {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      color: #ffbd4a;
+    }
+
+    .required {
+      color: #ffbd4a;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>OCEAN PRODUCTION</h1>
+
+    <p class="subtitle">
+      Make your event unforgettable!<br>
+      Submit your event details and our team will contact you.
+    </p>
+
+    <form id="registrationForm">
+      <h2>Customer Details</h2>
+
+      <label for="full_name">Full Name <span class="required">*</span></label>
+      <input id="full_name" name="full_name"
+             maxlength="100" required autocomplete="name">
+
+      <label for="email">Email Address <span class="required">*</span></label>
+      <input id="email" name="email" type="email"
+             maxlength="254" required autocomplete="email">
+
+      <label for="phone">Phone Number <span class="required">*</span></label>
+      <input id="phone" name="phone" type="tel"
+             maxlength="30" required autocomplete="tel">
+
+      <h2 style="margin-top:28px">Event Details</h2>
+
+      <label for="event_name">Event Name <span class="required">*</span></label>
+      <input id="event_name" name="event_name"
+             maxlength="150" required
+             placeholder="e.g. Birthday Celebration">
+
+      <label for="event_type">Event Type</label>
+      <select id="event_type" name="event_type">
+        <option value="">Select event type</option>
+        <option>Wedding</option>
+        <option>Birthday</option>
+        <option>Engagement</option>
+        <option>Garba / Navratri</option>
+        <option>Concert</option>
+        <option>Corporate Event</option>
+        <option>Private Party</option>
+        <option>Other</option>
+      </select>
+
+      <label for="event_date">Event Date</label>
+      <input id="event_date" name="event_date" type="date">
+
+      <label for="event_time">Event Time</label>
+      <input id="event_time" name="event_time" type="time">
+
+      <label for="venue">Event Venue</label>
+      <input id="venue" name="venue" maxlength="250"
+             placeholder="City, venue or address">
+
+      <label for="budget">Estimated Budget (₹)</label>
+      <input id="budget" name="budget" type="number"
+             min="0" max="1000000000" step="0.01"
+             placeholder="Enter your estimated budget">
+
+      <label for="requirements">Special Requirements</label>
+      <textarea id="requirements" name="requirements"
+                maxlength="3000"
+                placeholder="Cold pyro, confetti, CO2 effects, stage setup, etc."></textarea>
+
+      <button id="submitButton" type="submit">
+        Submit Event Registration
+      </button>
+
+      <p id="message" role="status" aria-live="polite"></p>
+    </form>
+
+    <a class="back" href="index.html">← Back to Home</a>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
+    const FUNCTION_URL =
+      SUPABASE_URL + "/functions/v1/customer-registration";
+
+    const form = document.getElementById("registrationForm");
+    const button = document.getElementById("submitButton");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      button.disabled = true;
+      button.textContent = "Submitting...";
+      message.textContent = "Please wait while we submit your request.";
+
+      const data = {
+        full_name: form.full_name.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        event_name: form.event_name.value.trim(),
+        event_type: form.event_type.value,
+        event_date: form.event_date.value || null,
+        event_time: form.event_time.value || null,
+        venue: form.venue.value.trim(),
+        budget: form.budget.value,
+        requirements: form.requirements.value.trim()
+      };
+
+      try {
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.error || "Registration failed. Please try again."
+          );
+        }
+
+        message.textContent =
+          "✅ " + result.message +
+          " Your reference number is " + result.event_id + ".";
+
+        form.reset();
+      } catch (error) {
+        console.error("Registration error:", error);
+        message.textContent =
+          "❌ " + (error.message ||
+          "Unable to submit. Please try again later.");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Submit Event Registration";
+      }
+    });
+  </script>
+</body>
+</html>
