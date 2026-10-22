@@ -312,6 +312,7 @@
       $("dashboard").classList.remove("hidden");
       $("welcome").textContent = "Signed in as " + admin.full_name;
       await loadEvents();
+await loadCustomers();
     }
 
     async function loadEvents() {
