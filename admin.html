@@ -332,8 +332,10 @@
       $("cancelledEvents").textContent =
         events.filter(e => e.status === "Cancelled").length;
       $("totalBudget").textContent = money(
-        events.reduce((sum, e) => sum + Number(e.budget || 0), 0)
-      );
+events
+.filter(e => e.status !== "Cancelled")
+.reduce((sum, e) => sum + Number(e.budget || 0), 0)
+);
 
       const tbody = $("eventRows");
       tbody.replaceChildren();
