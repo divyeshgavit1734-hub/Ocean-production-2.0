@@ -1,0 +1,470 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ocean Production | Admin Dashboard</title>  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #08111f;
+      color: #f5f7fb;
+    }
+
+    header {
+      padding: 20px;
+      background: #111d30;
+      border-bottom: 1px solid #293850;
+    }
+
+    header h1 {
+      color: #ff9d00;
+      margin: 0 0 6px;
+    }
+
+    header p {
+      color: #bdc8d8;
+      margin: 0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .panel {
+      background: #111d30;
+      border: 1px solid #293850;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    input, select {
+      background: #081525;
+      color: white;
+      border: 1px solid #354760;
+    }
+
+    button {
+      background: #ff9d00;
+      color: #111;
+      font-weight: bold;
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .secondary {
+      background: #253650;
+      color: white;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: #111d30;
+      border: 1px solid #293850;
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .stat span {
+      display: block;
+      color: #bdc8d8;
+      margin-bottom: 10px;
+    }
+
+    .stat strong {
+      font-size: 25px;
+      color: #ffb02e;
+      overflow-wrap: anywhere;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 750px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #293850;
+    }
+
+    th { color: #ffb02e; }
+
+    .message {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+
+    .hidden { display: none; }
+
+    .note {
+      color: #bdc8d8;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style></head><body>
+  <header>
+    <h1>OCEAN PRODUCTION</h1>
+    <p>Administration Dashboard</p>
+  </header>  <main>
+    <section id="loginPanel" class="panel">
+      <h2>Admin Login</h2>
+      <p class="note">
+        Sign in using the administrator account created in Supabase
+        Authentication.
+      </p>  <form id="loginForm">
+    <label for="email">Admin Email</label>
+    <input id="email" type="email" autocomplete="username"
+           required>
+
+    <label for="password">Password</label>
+    <input id="password" type="password"
+           autocomplete="current-password" required>
+
+    <button id="loginButton" type="submit">Sign In</button>
+  </form>
+
+  <p id="loginMessage" class="message" role="status"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+  <div class="panel">
+    <h2>Dashboard Overview</h2>
+    <p id="welcome"></p>
+    <button id="refreshButton">Refresh Data</button>
+    <button id="logoutButton" class="secondary">Sign Out</button>
+    <p id="dashboardMessage" class="message" role="status"></p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span>Total Events</span>
+      <strong id="totalEvents">—</strong>
+    </div>
+    <div class="stat">
+      <span>New Requests</span>
+      <strong id="newEvents">—</strong>
+    </div>
+    <div class="stat">
+      <span>Confirmed</span>
+      <strong id="confirmedEvents">—</strong>
+    </div>
+    <div class="stat">
+      <span>Completed</span>
+      <strong id="completedEvents">—</strong>
+    </div>
+    <div class="stat">
+      <span>Cancelled</span>
+      <strong id="cancelledEvents">—</strong>
+    </div>
+    <div class="stat">
+      <span>Total Listed Budget</span>
+      <strong id="totalBudget">—</strong>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>Event Registrations</h2>
+    <p class="note">
+      Change an event's status and tap Save. Only authorized
+      administrators should be able to access these records.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Contact</th>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Venue</th>
+            <th>Budget</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="eventRows">
+          <tr>
+            <td colspan="9">Sign in to load event registrations.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+  </main>  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    // Replace this URL with your actual Supabase Project URL.
+    const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
+
+    // Use your Supabase publishable key here, never a secret/service-role key.
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+
+    const supabase = createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const $ = (id) => document.getElementById(id);
+
+    function setMessage(id, message) {
+      $(id).textContent = message;
+    }
+
+    function money(value) {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2
+      }).format(Number(value || 0));
+    }
+
+    function addCell(row, value) {
+      const cell = document.createElement("td");
+      cell.textContent = value == null || value === ""
+        ? "—"
+        : String(value);
+      row.appendChild(cell);
+      return cell;
+    }
+
+    async function isAuthorizedAdmin(userId) {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("admin_id, full_name, email")
+        .eq("auth_user_id", userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    }
+
+    async function showDashboard(user) {
+      const admin = await isAuthorizedAdmin(user.id);
+
+      if (!admin) {
+        await supabase.auth.signOut();
+        $("dashboard").classList.add("hidden");
+        $("loginPanel").classList.remove("hidden");
+        setMessage(
+          "loginMessage",
+          "This account is not registered as an Ocean Production admin."
+        );
+        return;
+      }
+
+      $("loginPanel").classList.add("hidden");
+      $("dashboard").classList.remove("hidden");
+      $("welcome").textContent = "Signed in as " + admin.full_name;
+      await loadEvents();
+    }
+
+    async function loadEvents() {
+      setMessage("dashboardMessage", "Loading event registrations...");
+
+      const { data, error } = await supabase
+        .from("events")
+        .select(`
+          event_id,
+          event_name,
+          event_date,
+          venue,
+          budget,
+          status,
+          customers (
+            full_name,
+            email,
+            phone
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setMessage(
+          "dashboardMessage",
+          "Unable to load events: " + error.message
+        );
+        return;
+      }
+
+      const events = data || [];
+      $("totalEvents").textContent = events.length;
+      $("newEvents").textContent =
+        events.filter(e => e.status === "New").length;
+      $("confirmedEvents").textContent =
+        events.filter(e => e.status === "Confirmed").length;
+      $("completedEvents").textContent =
+        events.filter(e => e.status === "Completed").length;
+      $("cancelledEvents").textContent =
+        events.filter(e => e.status === "Cancelled").length;
+      $("totalBudget").textContent = money(
+        events.reduce((sum, e) => sum + Number(e.budget || 0), 0)
+      );
+
+      const tbody = $("eventRows");
+      tbody.replaceChildren();
+
+      if (events.length === 0) {
+        const row = document.createElement("tr");
+        const cell = addCell(row, "No event registrations found.");
+        cell.colSpan = 9;
+        tbody.appendChild(row);
+      }
+
+      for (const event of events) {
+        const row = document.createElement("tr");
+        addCell(row, event.event_id);
+        addCell(row, event.customers?.full_name);
+        addCell(
+          row,
+          [
+            event.customers?.email,
+            event.customers?.phone
+          ].filter(Boolean).join(" / ")
+        );
+        addCell(row, event.event_name);
+        addCell(row, event.event_date);
+        addCell(row, event.venue);
+        addCell(row, money(event.budget));
+
+        const statusCell = document.createElement("td");
+        const select = document.createElement("select");
+
+        for (const status of [
+          "New", "Confirmed", "Completed", "Cancelled"
+        ]) {
+          const option = document.createElement("option");
+          option.value = status;
+          option.textContent = status;
+          select.appendChild(option);
+        }
+
+        select.value = event.status;
+        statusCell.appendChild(select);
+        row.appendChild(statusCell);
+
+        const actionCell = document.createElement("td");
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.addEventListener("click", async () => {
+          saveButton.disabled = true;
+          setMessage("dashboardMessage", "Saving event status...");
+
+          const { error: updateError } = await supabase
+            .from("events")
+            .update({ status: select.value })
+            .eq("event_id", event.event_id);
+
+          saveButton.disabled = false;
+
+          if (updateError) {
+            setMessage(
+              "dashboardMessage",
+              "Status update failed: " + updateError.message
+            );
+            return;
+          }
+
+          setMessage("dashboardMessage", "Event status updated.");
+          await loadEvents();
+        });
+
+        actionCell.appendChild(saveButton);
+        row.appendChild(actionCell);
+        tbody.appendChild(row);
+      }
+
+      setMessage("dashboardMessage", "Event data loaded.");
+    }
+
+    $("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      $("loginButton").disabled = true;
+      setMessage("loginMessage", "Signing in...");
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: $("email").value.trim(),
+          password: $("password").value
+        });
+
+        if (error) throw error;
+        await showDashboard(data.user);
+      } catch (error) {
+        setMessage("loginMessage", "Login failed: " + error.message);
+      } finally {
+        $("loginButton").disabled = false;
+      }
+    });
+
+    $("refreshButton").addEventListener("click", async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          $("dashboard").classList.add("hidden");
+          $("loginPanel").classList.remove("hidden");
+          setMessage("loginMessage", "Please sign in again.");
+          return;
+        }
+
+        await showDashboard(user);
+      } catch (error) {
+        setMessage("dashboardMessage", error.message);
+      }
+    });
+
+    $("logoutButton").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      $("dashboard").classList.add("hidden");
+      $("loginPanel").classList.remove("hidden");
+      $("loginForm").reset();
+      setMessage("loginMessage", "You have signed out.");
+    });
+
+    async function restoreSession() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) await showDashboard(session.user);
+      } catch (error) {
+        setMessage("loginMessage", "Unable to restore session.");
+      }
+    }
+
+    restoreSession();
+  </script></body>
+</html>
