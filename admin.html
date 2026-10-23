@@ -547,13 +547,12 @@
     // LOAD STAFF
     async function loadStaff() {
 const tbody = $("staffRows");
-
 tbody.replaceChildren();
 
 const { data, error } = await supabase
 .from("staff")
 .select(
-"staff_id, name, phone_number, whatsapp, email, role, joining_date, address, status"
+"staff_id, full_name, phone_number, whatsapp, email, role, joining_date, address, status, created_at"
 )
 .order("created_at", { ascending: false });
 
@@ -572,7 +571,7 @@ for (const staff of data) {
 const row = document.createElement("tr");
 
 addCell(row, staff.staff_id);
-addCell(row, staff.name);
+addCell(row, staff.full_name);
 addCell(row, staff.phone_number);
 addCell(row, staff.whatsapp);
 addCell(row, staff.email);
@@ -602,18 +601,12 @@ statusButton.textContent =
   String(staff.status).toLowerCase() === "active"
     ? "Set Inactive"
     : "Set Active";
-
-statusButton.addEventListener("click", () =>
-  changeStaffStatus(staff)
-);
+statusButton.addEventListener("click", () => changeStaffStatus(staff));
 
 const deleteButton = document.createElement("button");
 deleteButton.type = "button";
 deleteButton.textContent = "Delete";
-
-deleteButton.addEventListener("click", () =>
-  deleteStaff(staff)
-);
+deleteButton.addEventListener("click", () => deleteStaff(staff));
 
 actions.append(editButton, statusButton, deleteButton);
 row.appendChild(actions);
@@ -633,7 +626,7 @@ $("staffFormMessage").textContent = "";
 
 function editStaff(staff) {
 $("editStaffId").value = staff.staff_id;
-$("staffName").value = staff.name || "";
+$("staffName").value = staff.full_name || "";
 $("staffPhone").value = staff.phone_number || "";
 $("staffWhatsapp").value = staff.whatsapp || "";
 $("staffEmail").value = staff.email || "";
@@ -645,7 +638,7 @@ $("staffStatus").value = staff.status || "Active";
 $("staffFormTitle").textContent = "Edit Staff";
 $("staffSubmitBtn").textContent = "Update Staff";
 $("staffCancelBtn").style.display = "inline-block";
-$("staffFormMessage").textContent = "Editing " + staff.name;
+$("staffFormMessage").textContent = "Editing " + staff.full_name;
 
 $("staffForm").scrollIntoView({
 behavior: "smooth",
@@ -654,12 +647,14 @@ block: "start"
 }
 
 async function changeStaffStatus(staff) {
-const currentStatus = String(staff.status || "").toLowerCase();
-const newStatus = currentStatus === "active" ? "Inactive" : "Active";
+const newStatus =
+String(staff.status).toLowerCase() === "active"
+? "Inactive"
+: "Active";
 
 if (
 !confirm(
-"Change " + staff.name + "'s status to " + newStatus + "?"
+"Change " + staff.full_name + "'s status to " + newStatus + "?"
 )
 ) {
 return;
@@ -671,24 +666,22 @@ const { error } = await supabase
 .eq("staff_id", staff.staff_id);
 
 if (error) {
-alert("Unable to change staff status: " + error.message);
 console.error("Staff status update error:", error);
+alert("Unable to change staff status: " + error.message);
 return;
 }
 
-alert("Staff status changed to " + newStatus + ".");
 await loadStaff();
+alert("Staff status changed to " + newStatus + ".");
 }
 
 async function deleteStaff(staff) {
 const confirmed = confirm(
-"Delete staff member " + staff.name + " (ID: " +
-staff.staff_id + ")? This action cannot be undone."
+"Delete staff member " + staff.full_name +
+" (ID: " + staff.staff_id + ")? This cannot be undone."
 );
 
-if (!confirmed) {
-return;
-}
+if (!confirmed) return;
 
 const { error } = await supabase
 .from("staff")
@@ -696,17 +689,17 @@ const { error } = await supabase
 .eq("staff_id", staff.staff_id);
 
 if (error) {
-alert("Unable to delete staff: " + error.message);
 console.error("Staff deletion error:", error);
+alert("Unable to delete staff: " + error.message);
 return;
 }
 
-if ($("editStaffId").value === String(staff.staff_id)) {
+if (String($("editStaffId").value) === String(staff.staff_id)) {
 resetStaffForm();
 }
 
-alert("Staff member deleted successfully.");
 await loadStaff();
+alert("Staff member deleted successfully.");
 }
 
 $("staffCancelBtn").style.display = "none";
@@ -723,7 +716,7 @@ submitButton.disabled = true;
 message.textContent = "Saving staff...";
 
 const staffData = {
-name: $("staffName").value.trim(),
+full_name: $("staffName").value.trim(),
 phone_number: $("staffPhone").value.trim(),
 whatsapp: $("staffWhatsapp").value.trim() || null,
 email: $("staffEmail").value.trim() || null,
@@ -733,27 +726,26 @@ address: $("staffAddress").value.trim() || null,
 status: $("staffStatus").value
 };
 
+const editingId = $("editStaffId").value;
+
 try {
-const staffId = $("editStaffId").value;
 let result;
 
-if (staffId) {
+if (editingId) {
   result = await supabase
     .from("staff")
     .update(staffData)
-    .eq("staff_id", staffId);
+    .eq("staff_id", editingId);
 } else {
   result = await supabase
     .from("staff")
     .insert([staffData]);
 }
 
-if (result.error) {
-  throw result.error;
-}
+if (result.error) throw result.error;
 
 resetStaffForm();
-message.textContent = staffId
+message.textContent = editingId
   ? "Staff details updated successfully!"
   : "Staff member added successfully!";
 
