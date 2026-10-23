@@ -394,6 +394,7 @@
                 <th>Joining Date</th>
                 <th>Address</th>
                 <th>Status</th>
+<th>Actions</th>
               </tr>
             </thead>
 
@@ -545,67 +546,228 @@
 
     // LOAD STAFF
     async function loadStaff() {
+const tbody = $("staffRows");
 
-      const tbody = $("staffRows");
+tbody.replaceChildren();
 
-      const { data, error } = await supabase
-        .from("staff")
-        .select(
-          "staff_id, name, phone_number, whatsapp, email, role, joining_date, address, status"
-        )
-        .order("created_at", { ascending: false });
+const { data, error } = await supabase
+.from("staff")
+.select(
+"staff_id, name, phone_number, whatsapp, email, role, joining_date, address, status"
+)
+.order("created_at", { ascending: false });
 
-      if (error) {
+if (error) {
+addMessageRow(tbody, "Unable to load staff: " + error.message, 10);
+console.error("Staff loading error:", error);
+return;
+}
 
-        addMessageRow(
-          tbody,
-          "Unable to load staff: " + error.message,
-          9
-        );
+if (!data || data.length === 0) {
+addMessageRow(tbody, "No staff records found.", 10);
+return;
+}
 
-        console.error("Staff loading error:", error);
+for (const staff of data) {
+const row = document.createElement("tr");
 
-        return;
-      }
+addCell(row, staff.staff_id);
+addCell(row, staff.name);
+addCell(row, staff.phone_number);
+addCell(row, staff.whatsapp);
+addCell(row, staff.email);
+addCell(row, staff.role);
 
-      if (!data || data.length === 0) {
+addCell(
+  row,
+  staff.joining_date
+    ? new Date(staff.joining_date + "T00:00:00")
+        .toLocaleDateString("en-IN")
+    : "—"
+);
 
-        addMessageRow(
-          tbody,
-          "No staff records found.",
-          9
-        );
+addCell(row, staff.address);
+addCell(row, staff.status);
 
-        return;
-      }
+const actions = document.createElement("td");
 
-      tbody.replaceChildren();
+const editButton = document.createElement("button");
+editButton.type = "button";
+editButton.textContent = "Edit";
+editButton.addEventListener("click", () => editStaff(staff));
 
-      for (const staff of data) {
+const statusButton = document.createElement("button");
+statusButton.type = "button";
+statusButton.textContent =
+  String(staff.status).toLowerCase() === "active"
+    ? "Set Inactive"
+    : "Set Active";
 
-        const row = document.createElement("tr");
+statusButton.addEventListener("click", () =>
+  changeStaffStatus(staff)
+);
 
-        addCell(row, staff.staff_id);
-        addCell(row, staff.name);
-        addCell(row, staff.phone_number);
-        addCell(row, staff.whatsapp);
-        addCell(row, staff.email);
-        addCell(row, staff.role);
+const deleteButton = document.createElement("button");
+deleteButton.type = "button";
+deleteButton.textContent = "Delete";
 
-        addCell(
-          row,
-          staff.joining_date
-            ? new Date(staff.joining_date)
-                .toLocaleDateString("en-IN")
-            : "—"
-        );
+deleteButton.addEventListener("click", () =>
+  deleteStaff(staff)
+);
 
-        addCell(row, staff.address);
-        addCell(row, staff.status);
+actions.append(editButton, statusButton, deleteButton);
+row.appendChild(actions);
+tbody.appendChild(row);
 
-        tbody.appendChild(row);
-      }
-    }
+}
+}
+
+function resetStaffForm() {
+$("staffForm").reset();
+$("editStaffId").value = "";
+$("staffFormTitle").textContent = "Add New Staff";
+$("staffSubmitBtn").textContent = "Save Staff";
+$("staffCancelBtn").style.display = "none";
+$("staffFormMessage").textContent = "";
+}
+
+function editStaff(staff) {
+$("editStaffId").value = staff.staff_id;
+$("staffName").value = staff.name || "";
+$("staffPhone").value = staff.phone_number || "";
+$("staffWhatsapp").value = staff.whatsapp || "";
+$("staffEmail").value = staff.email || "";
+$("staffRole").value = staff.role || "";
+$("staffJoiningDate").value = staff.joining_date || "";
+$("staffAddress").value = staff.address || "";
+$("staffStatus").value = staff.status || "Active";
+
+$("staffFormTitle").textContent = "Edit Staff";
+$("staffSubmitBtn").textContent = "Update Staff";
+$("staffCancelBtn").style.display = "inline-block";
+$("staffFormMessage").textContent = "Editing " + staff.name;
+
+$("staffForm").scrollIntoView({
+behavior: "smooth",
+block: "start"
+});
+}
+
+async function changeStaffStatus(staff) {
+const currentStatus = String(staff.status || "").toLowerCase();
+const newStatus = currentStatus === "active" ? "Inactive" : "Active";
+
+if (
+!confirm(
+"Change " + staff.name + "'s status to " + newStatus + "?"
+)
+) {
+return;
+}
+
+const { error } = await supabase
+.from("staff")
+.update({ status: newStatus })
+.eq("staff_id", staff.staff_id);
+
+if (error) {
+alert("Unable to change staff status: " + error.message);
+console.error("Staff status update error:", error);
+return;
+}
+
+alert("Staff status changed to " + newStatus + ".");
+await loadStaff();
+}
+
+async function deleteStaff(staff) {
+const confirmed = confirm(
+"Delete staff member " + staff.name + " (ID: " +
+staff.staff_id + ")? This action cannot be undone."
+);
+
+if (!confirmed) {
+return;
+}
+
+const { error } = await supabase
+.from("staff")
+.delete()
+.eq("staff_id", staff.staff_id);
+
+if (error) {
+alert("Unable to delete staff: " + error.message);
+console.error("Staff deletion error:", error);
+return;
+}
+
+if ($("editStaffId").value === String(staff.staff_id)) {
+resetStaffForm();
+}
+
+alert("Staff member deleted successfully.");
+await loadStaff();
+}
+
+$("staffCancelBtn").style.display = "none";
+
+$("staffForm").addEventListener("submit", async (event) => {
+event.preventDefault();
+
+const message = $("staffFormMessage");
+const submitButton = $("staffSubmitBtn");
+
+if (submitButton.disabled) return;
+
+submitButton.disabled = true;
+message.textContent = "Saving staff...";
+
+const staffData = {
+name: $("staffName").value.trim(),
+phone_number: $("staffPhone").value.trim(),
+whatsapp: $("staffWhatsapp").value.trim() || null,
+email: $("staffEmail").value.trim() || null,
+role: $("staffRole").value.trim(),
+joining_date: $("staffJoiningDate").value || null,
+address: $("staffAddress").value.trim() || null,
+status: $("staffStatus").value
+};
+
+try {
+const staffId = $("editStaffId").value;
+let result;
+
+if (staffId) {
+  result = await supabase
+    .from("staff")
+    .update(staffData)
+    .eq("staff_id", staffId);
+} else {
+  result = await supabase
+    .from("staff")
+    .insert([staffData]);
+}
+
+if (result.error) {
+  throw result.error;
+}
+
+resetStaffForm();
+message.textContent = staffId
+  ? "Staff details updated successfully!"
+  : "Staff member added successfully!";
+
+await loadStaff();
+
+} catch (error) {
+console.error("Saving staff failed:", error);
+message.textContent = "Unable to save staff: " + error.message;
+} finally {
+submitButton.disabled = false;
+}
+});
+
+$("staffCancelBtn").addEventListener("click", resetStaffForm);
 
     // LOAD EVENTS
     async function loadEvents() {
