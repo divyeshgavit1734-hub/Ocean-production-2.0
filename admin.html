@@ -552,7 +552,7 @@ tbody.replaceChildren();
 const { data, error } = await supabase
 .from("staff")
 .select(
-"staff_id, full_name, phone_number, whatsapp, email, role, joining_date, address, status, created_at"
+"staff_id, full_name, mobile, whatsapp, email, role, joining_date, address, status, created_at"
 )
 .order("created_at", { ascending: false });
 
@@ -572,7 +572,7 @@ const row = document.createElement("tr");
 
 addCell(row, staff.staff_id);
 addCell(row, staff.full_name);
-addCell(row, staff.phone_number);
+addCell(row, staff.mobile);
 addCell(row, staff.whatsapp);
 addCell(row, staff.email);
 addCell(row, staff.role);
@@ -627,7 +627,7 @@ $("staffFormMessage").textContent = "";
 function editStaff(staff) {
 $("editStaffId").value = staff.staff_id;
 $("staffName").value = staff.full_name || "";
-$("staffPhone").value = staff.phone_number || "";
+$("staffPhone").value = staff.mobile || "";
 $("staffWhatsapp").value = staff.whatsapp || "";
 $("staffEmail").value = staff.email || "";
 $("staffRole").value = staff.role || "";
@@ -652,11 +652,7 @@ String(staff.status).toLowerCase() === "active"
 ? "Inactive"
 : "Active";
 
-if (
-!confirm(
-"Change " + staff.full_name + "'s status to " + newStatus + "?"
-)
-) {
+if (!confirm("Change " + staff.full_name + "'s status to " + newStatus + "?")) {
 return;
 }
 
@@ -676,12 +672,14 @@ alert("Staff status changed to " + newStatus + ".");
 }
 
 async function deleteStaff(staff) {
-const confirmed = confirm(
+if (
+!confirm(
 "Delete staff member " + staff.full_name +
 " (ID: " + staff.staff_id + ")? This cannot be undone."
-);
-
-if (!confirmed) return;
+)
+) {
+return;
+}
 
 const { error } = await supabase
 .from("staff")
@@ -717,7 +715,7 @@ message.textContent = "Saving staff...";
 
 const staffData = {
 full_name: $("staffName").value.trim(),
-phone_number: $("staffPhone").value.trim(),
+mobile: $("staffPhone").value.trim(),
 whatsapp: $("staffWhatsapp").value.trim() || null,
 email: $("staffEmail").value.trim() || null,
 role: $("staffRole").value.trim(),
@@ -745,6 +743,7 @@ if (editingId) {
 if (result.error) throw result.error;
 
 resetStaffForm();
+
 message.textContent = editingId
   ? "Staff details updated successfully!"
   : "Staff member added successfully!";
