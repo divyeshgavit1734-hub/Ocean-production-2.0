@@ -326,6 +326,59 @@
           View staff contact information, roles, joining dates,
           addresses, and status.
         </p>
+<div class="staff-form-wrap">
+  <h3 id="staffFormTitle">Add New Staff</h3>  <form id="staffForm">
+    <input type="hidden" id="editStaffId"><div class="form-grid">
+  <div>
+    <label for="staffName">Full Name *</label>
+    <input type="text" id="staffName" required>
+  </div>
+
+  <div>
+    <label for="staffPhone">Phone Number *</label>
+    <input type="tel" id="staffPhone" required>
+  </div>
+
+  <div>
+    <label for="staffWhatsapp">WhatsApp Number</label>
+    <input type="tel" id="staffWhatsapp">
+  </div>
+
+  <div>
+    <label for="staffEmail">Email</label>
+    <input type="email" id="staffEmail">
+  </div>
+
+  <div>
+    <label for="staffRole">Role *</label>
+    <input type="text" id="staffRole" placeholder="e.g. Stage Technician" required>
+  </div>
+
+  <div>
+    <label for="staffJoiningDate">Joining Date</label>
+    <input type="date" id="staffJoiningDate">
+  </div>
+
+  <div>
+    <label for="staffStatus">Status *</label>
+    <select id="staffStatus" required>
+      <option value="Active">Active</option>
+      <option value="Inactive">Inactive</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="staffAddress">Address</label>
+    <textarea id="staffAddress" rows="2"></textarea>
+  </div>
+</div>
+
+<button type="submit" id="staffSubmitBtn">Save Staff</button>
+<button type="button" id="staffCancelBtn">Cancel Edit</button>
+<p id="staffFormMessage" role="status"></p>
+
+  </form>
+</div>
 
         <div class="table-wrap">
           <table>
