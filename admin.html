@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ocean Production | Admin Dashboard</title>  <style>
+  <title>Ocean Production | Admin Dashboard</title>
+
+  <style>
     * { box-sizing: border-box; }
 
     body {
@@ -116,7 +119,9 @@
       border-bottom: 1px solid #293850;
     }
 
-    th { color: #ffb02e; }
+    th {
+      color: #ffb02e;
+    }
 
     .message {
       white-space: pre-wrap;
@@ -124,397 +129,821 @@
       line-height: 1.5;
     }
 
-    .hidden { display: none; }
+    .hidden {
+      display: none;
+    }
 
     .note {
       color: #bdc8d8;
       font-size: 14px;
       line-height: 1.5;
     }
-  </style></head><body>
+  </style>
+</head>
+
+<body>
+
   <header>
     <h1>OCEAN PRODUCTION</h1>
     <p>Administration Dashboard</p>
-  </header>  <main>
+  </header>
+
+  <main>
+
+    <!-- ADMIN LOGIN -->
     <section id="loginPanel" class="panel">
       <h2>Admin Login</h2>
+
       <p class="note">
-        Sign in using the administrator account created in Supabase
-        Authentication.
-      </p>  <form id="loginForm">
-    <label for="email">Admin Email</label>
-    <input id="email" type="email" autocomplete="username"
-           required>
+        Sign in using the administrator account created in Supabase Authentication.
+      </p>
 
-    <label for="password">Password</label>
-    <input id="password" type="password"
-           autocomplete="current-password" required>
+      <form id="loginForm">
 
-    <button id="loginButton" type="submit">Sign In</button>
-  </form>
+        <label for="email">Admin Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          required
+        >
 
-  <p id="loginMessage" class="message" role="status"></p>
-</section>
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
 
-<section id="dashboard" class="hidden">
-  <div class="panel">
-    <h2>Dashboard Overview</h2>
-    <p id="welcome"></p>
-    <button id="refreshButton">Refresh Data</button>
-    <button id="logoutButton" class="secondary">Sign Out</button>
-    <p id="dashboardMessage" class="message" role="status"></p>
-  </div>
+        <button id="loginButton" type="submit">
+          Sign In
+        </button>
 
-  <div class="stats">
-    <div class="stat">
-      <span>Total Events</span>
-      <strong id="totalEvents">—</strong>
-    </div>
-    <div class="stat">
-      <span>New Requests</span>
-      <strong id="newEvents">—</strong>
-    </div>
-    <div class="stat">
-      <span>Confirmed</span>
-      <strong id="confirmedEvents">—</strong>
-    </div>
-    <div class="stat">
-      <span>Completed</span>
-      <strong id="completedEvents">—</strong>
-    </div>
-    <div class="stat">
-      <span>Cancelled</span>
-      <strong id="cancelledEvents">—</strong>
-    </div>
-    <div class="stat">
-      <span>Total Listed Budget</span>
-      <strong id="totalBudget">—</strong>
-    </div>
-  </div>
+      </form>
 
-  <section class="panel">
-    <h2>Event Registrations</h2>
-    <p class="note">
-      Change an event's status and tap Save. Only authorized
-      administrators should be able to access these records.
-    </p>
+      <p id="loginMessage" class="message" role="status"></p>
+    </section>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Contact</th>
-            <th>Event</th>
-            <th>Date</th>
-            <th>Venue</th>
-            <th>Budget</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="eventRows">
-          <tr>
-            <td colspan="9">Sign in to load event registrations.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-<section class="panel">
-  <h2>Customer Management</h2>
-  <p class="note">View customer contact details and manage customer records.</p>  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Customer ID</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Registered On</th>
-        </tr>
-      </thead>
-      <tbody id="customerRows">
-        <tr>
-          <td colspan="5">Customer records will appear here.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-  </section>
-</section>
+    <!-- ADMIN DASHBOARD -->
+    <section id="dashboard" class="hidden">
 
-  </main>  <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+      <!-- DASHBOARD OVERVIEW -->
+      <section class="panel">
 
-const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+        <h2>Dashboard Overview</h2>
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-const $ = (id) => document.getElementById(id);
+        <p id="welcome"></p>
 
-function setMessage(id, message) {
-  $(id).textContent = message;
-}
+        <button id="refreshButton">
+          Refresh Data
+        </button>
 
-function money(value) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2
-  }).format(Number(value || 0));
-}
+        <button id="logoutButton" class="secondary">
+          Sign Out
+        </button>
 
-function addCell(row, value) {
-  const cell = document.createElement("td");
-  cell.textContent = value == null || value === "" ? "—" : String(value);
-  row.appendChild(cell);
-  return cell;
-}
+        <p id="dashboardMessage" class="message" role="status"></p>
 
-async function isAuthorizedAdmin(userId) {
-  const { data, error } = await supabase
-    .from("admins")
-    .select("admin_id, full_name, email")
-    .eq("auth_user_id", userId)
-    .maybeSingle();
+      </section>
 
-  if (error) throw error;
-  return data;
-}
+      <!-- EVENT STATISTICS -->
+      <div class="stats">
 
-async function loadCustomers() {
-  const tbody = $("customerRows");
-  tbody.replaceChildren();
+        <div class="stat">
+          <span>Total Events</span>
+          <strong id="totalEvents">—</strong>
+        </div>
 
-  const { data, error } = await supabase
-    .from("customers")
-    .select("customer_id, full_name, email, phone, created_at")
-    .order("created_at", { ascending: false });
+        <div class="stat">
+          <span>New Requests</span>
+          <strong id="newEvents">—</strong>
+        </div>
 
-  if (error) {
-    const row = document.createElement("tr");
-    const cell = addCell(row, "Unable to load customers: " + error.message);
-    cell.colSpan = 5;
-    tbody.appendChild(row);
-    console.error("Customer loading error:", error);
-    return;
-  }
+        <div class="stat">
+          <span>Confirmed</span>
+          <strong id="confirmedEvents">—</strong>
+        </div>
 
-  if (!data || data.length === 0) {
-    const row = document.createElement("tr");
-    const cell = addCell(row, "No customers found.");
-    cell.colSpan = 5;
-    tbody.appendChild(row);
-    return;
-  }
+        <div class="stat">
+          <span>Completed</span>
+          <strong id="completedEvents">—</strong>
+        </div>
 
-  for (const customer of data) {
-    const row = document.createElement("tr");
-    addCell(row, customer.customer_id);
-    addCell(row, customer.full_name);
-    addCell(row, customer.email);
-    addCell(row, customer.phone);
-    addCell(
-      row,
-      customer.created_at
-        ? new Date(customer.created_at).toLocaleDateString("en-IN")
-        : "—"
+        <div class="stat">
+          <span>Cancelled</span>
+          <strong id="cancelledEvents">—</strong>
+        </div>
+
+        <div class="stat">
+          <span>Total Listed Budget</span>
+          <strong id="totalBudget">—</strong>
+        </div>
+
+      </div>
+
+      <!-- EVENT REGISTRATIONS -->
+      <section class="panel">
+
+        <h2>Event Registrations</h2>
+
+        <p class="note">
+          Change an event's status and tap Save.
+          Only authorized administrators should access these records.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="eventRows">
+              <tr>
+                <td colspan="9">
+                  Sign in to load event registrations.
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </section>
+
+      <!-- CUSTOMER MANAGEMENT -->
+      <section class="panel">
+
+        <h2>Customer Management</h2>
+
+        <p class="note">
+          View customer contact details and registration dates.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registered On</th>
+              </tr>
+            </thead>
+
+            <tbody id="customerRows">
+              <tr>
+                <td colspan="5">
+                  Customer records will appear here.
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </section>
+
+      <!-- STAFF MANAGEMENT -->
+      <section class="panel">
+
+        <h2>Staff Management</h2>
+
+        <p class="note">
+          View staff contact information, roles, joining dates,
+          addresses, and status.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Staff ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>WhatsApp</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joining Date</th>
+                <th>Address</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody id="staffRows">
+              <tr>
+                <td colspan="9">
+                  Staff records will appear here.
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+  <!-- SUPABASE JAVASCRIPT -->
+  <script type="module">
+
+    import {
+      createClient
+    } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL =
+      "https://hsdgxktuutisvrsaieeq.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+
+    const supabase = createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
     );
-    tbody.appendChild(row);
-  }
-}
 
-async function loadEvents() {
-  setMessage("dashboardMessage", "Loading event registrations...");
+    const $ = (id) => document.getElementById(id);
 
-  const { data, error } = await supabase
-    .from("events")
-    .select(`
-      event_id,
-      event_name,
-      event_date,
-      venue,
-      budget,
-      status,
-      customers (
-        full_name,
-        email,
-        phone
-      )
-    `)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    setMessage("dashboardMessage", "Unable to load events: " + error.message);
-    console.error("Event loading error:", error);
-    return;
-  }
-
-  const events = data || [];
-
-  $("totalEvents").textContent = events.length;
-  $("newEvents").textContent = events.filter(e => e.status === "New").length;
-  $("confirmedEvents").textContent = events.filter(e => e.status === "Confirmed").length;
-  $("completedEvents").textContent = events.filter(e => e.status === "Completed").length;
-  $("cancelledEvents").textContent = events.filter(e => e.status === "Cancelled").length;
-
-  $("totalBudget").textContent = money(
-    events
-      .filter(e => e.status !== "Cancelled")
-      .reduce((sum, e) => sum + Number(e.budget || 0), 0)
-  );
-
-  const tbody = $("eventRows");
-  tbody.replaceChildren();
-
-  if (events.length === 0) {
-    const row = document.createElement("tr");
-    const cell = addCell(row, "No event registrations found.");
-    cell.colSpan = 9;
-    tbody.appendChild(row);
-  }
-
-  for (const event of events) {
-    const row = document.createElement("tr");
-    addCell(row, event.event_id);
-    addCell(row, event.customers?.full_name);
-    addCell(
-      row,
-      [event.customers?.email, event.customers?.phone]
-        .filter(Boolean)
-        .join(" / ")
-    );
-    addCell(row, event.event_name);
-    addCell(row, event.event_date);
-    addCell(row, event.venue);
-    addCell(row, money(event.budget));
-
-    const statusCell = document.createElement("td");
-    const select = document.createElement("select");
-
-    for (const status of ["New", "Confirmed", "Completed", "Cancelled"]) {
-      const option = document.createElement("option");
-      option.value = status;
-      option.textContent = status;
-      select.appendChild(option);
+    function setMessage(id, message) {
+      $(id).textContent = message;
     }
 
-    select.value = event.status || "New";
-    statusCell.appendChild(select);
-    row.appendChild(statusCell);
+    function money(value) {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2
+      }).format(Number(value || 0));
+    }
 
-    const actionCell = document.createElement("td");
-    const saveButton = document.createElement("button");
-    saveButton.textContent = "Save";
+    function addCell(row, value) {
+      const cell = document.createElement("td");
 
-    saveButton.addEventListener("click", async () => {
-      saveButton.disabled = true;
-      setMessage("dashboardMessage", "Saving event status...");
+      cell.textContent =
+        value == null || value === ""
+          ? "—"
+          : String(value);
+
+      row.appendChild(cell);
+
+      return cell;
+    }
+
+    function addMessageRow(tbody, message, colspan) {
+      tbody.replaceChildren();
+
+      const row = document.createElement("tr");
+      const cell = addCell(row, message);
+
+      cell.colSpan = colspan;
+
+      tbody.appendChild(row);
+    }
+
+    // VERIFY ADMIN ACCOUNT
+    async function isAuthorizedAdmin(userId) {
+
+      const { data, error } = await supabase
+        .from("admins")
+        .select("admin_id, full_name, email")
+        .eq("auth_user_id", userId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      return data;
+    }
+
+    // LOAD CUSTOMERS
+    async function loadCustomers() {
+
+      const tbody = $("customerRows");
+
+      const { data, error } = await supabase
+        .from("customers")
+        .select(
+          "customer_id, full_name, email, phone, created_at"
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) {
+
+        addMessageRow(
+          tbody,
+          "Unable to load customers: " + error.message,
+          5
+        );
+
+        console.error("Customer loading error:", error);
+
+        return;
+      }
+
+      if (!data || data.length === 0) {
+
+        addMessageRow(
+          tbody,
+          "No customers found.",
+          5
+        );
+
+        return;
+      }
+
+      tbody.replaceChildren();
+
+      for (const customer of data) {
+
+        const row = document.createElement("tr");
+
+        addCell(row, customer.customer_id);
+        addCell(row, customer.full_name);
+        addCell(row, customer.email);
+        addCell(row, customer.phone);
+
+        addCell(
+          row,
+          customer.created_at
+            ? new Date(customer.created_at)
+                .toLocaleDateString("en-IN")
+            : "—"
+        );
+
+        tbody.appendChild(row);
+      }
+    }
+
+    // LOAD STAFF
+    async function loadStaff() {
+
+      const tbody = $("staffRows");
+
+      const { data, error } = await supabase
+        .from("staff")
+        .select(
+          "staff_id, name, phone_number, whatsapp, email, role, joining_date, address, status"
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) {
+
+        addMessageRow(
+          tbody,
+          "Unable to load staff: " + error.message,
+          9
+        );
+
+        console.error("Staff loading error:", error);
+
+        return;
+      }
+
+      if (!data || data.length === 0) {
+
+        addMessageRow(
+          tbody,
+          "No staff records found.",
+          9
+        );
+
+        return;
+      }
+
+      tbody.replaceChildren();
+
+      for (const staff of data) {
+
+        const row = document.createElement("tr");
+
+        addCell(row, staff.staff_id);
+        addCell(row, staff.name);
+        addCell(row, staff.phone_number);
+        addCell(row, staff.whatsapp);
+        addCell(row, staff.email);
+        addCell(row, staff.role);
+
+        addCell(
+          row,
+          staff.joining_date
+            ? new Date(staff.joining_date)
+                .toLocaleDateString("en-IN")
+            : "—"
+        );
+
+        addCell(row, staff.address);
+        addCell(row, staff.status);
+
+        tbody.appendChild(row);
+      }
+    }
+
+    // LOAD EVENTS
+    async function loadEvents() {
+
+      setMessage(
+        "dashboardMessage",
+        "Loading event registrations..."
+      );
+
+      const { data, error } = await supabase
+        .from("events")
+        .select(`
+          event_id,
+          event_name,
+          event_date,
+          venue,
+          budget,
+          status,
+          created_at,
+          customers (
+            full_name,
+            email,
+            phone
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+
+        setMessage(
+          "dashboardMessage",
+          "Unable to load events: " + error.message
+        );
+
+        console.error("Event loading error:", error);
+
+        return;
+      }
+
+      const events = data || [];
+
+      $("totalEvents").textContent = events.length;
+
+      $("newEvents").textContent =
+        events.filter(e => e.status === "New").length;
+
+      $("confirmedEvents").textContent =
+        events.filter(e => e.status === "Confirmed").length;
+
+      $("completedEvents").textContent =
+        events.filter(e => e.status === "Completed").length;
+
+      $("cancelledEvents").textContent =
+        events.filter(e => e.status === "Cancelled").length;
+
+      $("totalBudget").textContent = money(
+        events
+          .filter(e => e.status !== "Cancelled")
+          .reduce(
+            (sum, e) => sum + Number(e.budget || 0),
+            0
+          )
+      );
+
+      const tbody = $("eventRows");
+
+      tbody.replaceChildren();
+
+      if (events.length === 0) {
+
+        addMessageRow(
+          tbody,
+          "No event registrations found.",
+          9
+        );
+      }
+
+      for (const event of events) {
+
+        const row = document.createElement("tr");
+
+        addCell(row, event.event_id);
+
+        addCell(
+          row,
+          event.customers?.full_name
+        );
+
+        addCell(
+          row,
+          [
+            event.customers?.email,
+            event.customers?.phone
+          ]
+            .filter(Boolean)
+            .join(" / ")
+        );
+
+        addCell(row, event.event_name);
+
+        addCell(
+          row,
+          event.event_date
+            ? new Date(event.event_date)
+                .toLocaleDateString("en-IN")
+            : "—"
+        );
+
+        addCell(row, event.venue);
+        addCell(row, money(event.budget));
+
+        const statusCell =
+          document.createElement("td");
+
+        const select =
+          document.createElement("select");
+
+        for (const status of [
+          "New",
+          "Confirmed",
+          "Completed",
+          "Cancelled"
+        ]) {
+
+          const option =
+            document.createElement("option");
+
+          option.value = status;
+          option.textContent = status;
+
+          select.appendChild(option);
+        }
+
+        select.value = event.status || "New";
+
+        statusCell.appendChild(select);
+        row.appendChild(statusCell);
+
+        const actionCell =
+          document.createElement("td");
+
+        const saveButton =
+          document.createElement("button");
+
+        saveButton.textContent = "Save";
+
+        saveButton.addEventListener(
+          "click",
+          async () => {
+
+            saveButton.disabled = true;
+
+            setMessage(
+              "dashboardMessage",
+              "Saving event status..."
+            );
+
+            try {
+
+              const { error: updateError } =
+                await supabase
+                  .from("events")
+                  .update({
+                    status: select.value
+                  })
+                  .eq("event_id", event.event_id);
+
+              if (updateError) {
+                throw updateError;
+              }
+
+              await loadEvents();
+
+              setMessage(
+                "dashboardMessage",
+                "Event status updated."
+              );
+
+            } catch (error) {
+
+              setMessage(
+                "dashboardMessage",
+                "Status update failed: " + error.message
+              );
+
+            } finally {
+
+              saveButton.disabled = false;
+            }
+          }
+        );
+
+        actionCell.appendChild(saveButton);
+        row.appendChild(actionCell);
+
+        tbody.appendChild(row);
+      }
+
+      setMessage(
+        "dashboardMessage",
+        "Event data loaded."
+      );
+    }
+
+    // OPEN DASHBOARD AFTER ADMIN VERIFICATION
+    async function showDashboard(user) {
+
+      const admin =
+        await isAuthorizedAdmin(user.id);
+
+      if (!admin) {
+
+        await supabase.auth.signOut();
+
+        $("dashboard").classList.add("hidden");
+        $("loginPanel").classList.remove("hidden");
+
+        setMessage(
+          "loginMessage",
+          "This account is not registered as an Ocean Production admin."
+        );
+
+        return;
+      }
+
+      $("loginPanel").classList.add("hidden");
+      $("dashboard").classList.remove("hidden");
+
+      $("welcome").textContent =
+        "Signed in as " +
+        (
+          admin.full_name ||
+          admin.email ||
+          "Administrator"
+        );
+
+      await Promise.allSettled([
+        loadEvents(),
+        loadCustomers(),
+        loadStaff()
+      ]);
+    }
+
+    // ADMIN LOGIN
+    $("loginForm").addEventListener(
+      "submit",
+      async (event) => {
+
+        event.preventDefault();
+
+        $("loginButton").disabled = true;
+
+        setMessage(
+          "loginMessage",
+          "Signing in..."
+        );
+
+        try {
+
+          const { data, error } =
+            await supabase.auth.signInWithPassword({
+              email: $("email").value.trim(),
+              password: $("password").value
+            });
+
+          if (error) throw error;
+
+          await showDashboard(data.user);
+
+        } catch (error) {
+
+          setMessage(
+            "loginMessage",
+            "Login failed: " + error.message
+          );
+
+          console.error("Login error:", error);
+
+        } finally {
+
+          $("loginButton").disabled = false;
+        }
+      }
+    );
+
+    // REFRESH DASHBOARD
+    $("refreshButton").addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          const {
+            data: { user },
+            error
+          } = await supabase.auth.getUser();
+
+          if (error) throw error;
+
+          if (!user) {
+
+            $("dashboard").classList.add("hidden");
+            $("loginPanel").classList.remove("hidden");
+
+            setMessage(
+              "loginMessage",
+              "Please sign in again."
+            );
+
+            return;
+          }
+
+          await showDashboard(user);
+
+        } catch (error) {
+
+          setMessage(
+            "dashboardMessage",
+            "Refresh failed: " + error.message
+          );
+        }
+      }
+    );
+
+    // SIGN OUT
+    $("logoutButton").addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          const { error } =
+            await supabase.auth.signOut();
+
+          if (error) throw error;
+
+        } catch (error) {
+
+          setMessage(
+            "dashboardMessage",
+            "Sign out failed: " + error.message
+          );
+
+          return;
+        }
+
+        $("dashboard").classList.add("hidden");
+        $("loginPanel").classList.remove("hidden");
+
+        $("loginForm").reset();
+
+        setMessage(
+          "loginMessage",
+          "You have signed out."
+        );
+      }
+    );
+
+    // RESTORE EXISTING SESSION
+    async function restoreSession() {
 
       try {
-        const { error: updateError } = await supabase
-          .from("events")
-          .update({ status: select.value })
-          .eq("event_id", event.event_id);
 
-        if (updateError) throw updateError;
+        const {
+          data: { session },
+          error
+        } = await supabase.auth.getSession();
 
-        await loadEvents();
-        setMessage("dashboardMessage", "Event status updated.");
+        if (error) throw error;
+
+        if (session?.user) {
+          await showDashboard(session.user);
+        }
+
       } catch (error) {
-        setMessage("dashboardMessage", "Status update failed: " + error.message);
-      } finally {
-        saveButton.disabled = false;
+
+        setMessage(
+          "loginMessage",
+          "Unable to restore session: " + error.message
+        );
+
+        console.error(
+          "Session restoration error:",
+          error
+        );
       }
-    });
-
-    actionCell.appendChild(saveButton);
-    row.appendChild(actionCell);
-    tbody.appendChild(row);
-  }
-
-  setMessage("dashboardMessage", "Event data loaded.");
-}
-
-async function showDashboard(user) {
-  const admin = await isAuthorizedAdmin(user.id);
-
-  if (!admin) {
-    await supabase.auth.signOut();
-    $("dashboard").classList.add("hidden");
-    $("loginPanel").classList.remove("hidden");
-    setMessage("loginMessage", "This account is not registered as an Ocean Production admin.");
-    return;
-  }
-
-  $("loginPanel").classList.add("hidden");
-  $("dashboard").classList.remove("hidden");
-  $("welcome").textContent = "Signed in as " + admin.full_name;
-
-  await loadEvents();
-  await loadCustomers();
-}
-
-$("loginForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  $("loginButton").disabled = true;
-  setMessage("loginMessage", "Signing in...");
-
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: $("email").value.trim(),
-      password: $("password").value
-    });
-
-    if (error) throw error;
-    await showDashboard(data.user);
-  } catch (error) {
-    setMessage("loginMessage", "Login failed: " + error.message);
-    console.error("Login error:", error);
-  } finally {
-    $("loginButton").disabled = false;
-  }
-});
-
-$("refreshButton").addEventListener("click", async () => {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
-
-    if (!user) {
-      $("dashboard").classList.add("hidden");
-      $("loginPanel").classList.remove("hidden");
-      setMessage("loginMessage", "Please sign in again.");
-      return;
     }
 
-    await showDashboard(user);
-  } catch (error) {
-    setMessage("dashboardMessage", error.message);
-  }
-});
+    restoreSession();
 
-$("logoutButton").addEventListener("click", async () => {
-  await supabase.auth.signOut();
-  $("dashboard").classList.add("hidden");
-  $("loginPanel").classList.remove("hidden");
-  $("loginForm").reset();
-  setMessage("loginMessage", "You have signed out.");
-});
+  </script>
 
-async function restoreSession() {
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (session?.user) await showDashboard(session.user);
-  } catch (error) {
-    setMessage("loginMessage", "Unable to restore session: " + error.message);
-    console.error("Session restoration error:", error);
-  }
-}
-
-restoreSession();
-</script></body>
+</body>
 </html>
