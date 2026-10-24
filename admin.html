@@ -31,11 +31,6 @@ table{width:100%;border-collapse:collapse;min-width:750px}
 th,td{text-align:left;padding:10px;border-bottom:1px solid #293850;vertical-align:top}
 th{color:#ffb02e}
 td button{min-width:85px;margin:3px}
-.staff-form-wrap{border:1px solid #293850;border-radius:10px;padding:14px;margin:15px 0}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-label{display:block;margin-top:8px}
-textarea{resize:vertical}
-.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media(max-width:600px){main{padding:10px}.panel{padding:13px}header{padding:16px}}
 </style>
 </head>
@@ -49,7 +44,7 @@ textarea{resize:vertical}
 <main>
   <section id="loginPanel" class="panel">
     <h2>Admin Login</h2>
-    <p class="note">Sign in with your authorized Supabase administrator account.</p>
+    <p class="note">Sign in with your authorized administrator account.</p>
     <form id="loginForm">
       <label for="email">Admin Email</label>
       <input id="email" type="email" autocomplete="username" required>
@@ -78,35 +73,36 @@ textarea{resize:vertical}
       <div class="stat"><span>Total Listed Budget</span><strong id="totalBudget">—</strong></div>
     </div>
 
-    <!-- EVENT MANAGEMENT -->
     <section class="panel">
       <h2>Event Registrations</h2>
       <p class="note">Update an event's status and press Save.</p>
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th>ID</th><th>Customer</th><th>Contact</th><th>Event</th>
-            <th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Action</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th>ID</th><th>Customer</th><th>Contact</th><th>Event</th>
+              <th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
           <tbody id="eventRows"><tr><td colspan="9">Sign in to load events.</td></tr></tbody>
         </table>
       </div>
     </section>
 
-    <!-- CUSTOMER MANAGEMENT -->
     <section class="panel">
       <h2>Customer Management</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th>Customer ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Registered On</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th>Customer ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Registered On</th>
+            </tr>
+          </thead>
           <tbody id="customerRows"><tr><td colspan="5">Customer records will appear here.</td></tr></tbody>
         </table>
       </div>
     </section>
 
-    <!-- STAFF APPLICATIONS -->
     <section class="panel">
       <h2>Staff Registration Requests</h2>
       <p class="note">Review applications. Approval creates a staff record; rejection does not create one.</p>
@@ -114,50 +110,30 @@ textarea{resize:vertical}
       <p id="requestsMessage" class="message" role="status"></p>
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th>Request ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-            <th>Email</th><th>Requested Role</th><th>Joining Date</th>
-            <th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th>Request ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
+              <th>Email</th><th>Requested Role</th><th>Joining Date</th>
+              <th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="requestRows"><tr><td colspan="11">No requests loaded.</td></tr></tbody>
         </table>
       </div>
     </section>
 
-    <!-- STAFF RECORDS -->
     <section class="panel">
       <h2>Staff Management</h2>
-      <p class="note">Edit staff details, change status, or delete a staff record.</p>
-
-      <div class="staff-form-wrap">
-        <h3 id="staffFormTitle">Add Staff Manually</h3>
-        <form id="staffForm">
-          <input type="hidden" id="editStaffId">
-          <div class="form-grid">
-            <div><label for="staffName">Full Name *</label><input id="staffName" required></div>
-            <div><label for="staffPhone">Mobile Number *</label><input id="staffPhone" type="tel" required></div>
-            <div><label for="staffWhatsapp">WhatsApp Number</label><input id="staffWhatsapp" type="tel"></div>
-            <div><label for="staffEmail">Email</label><input id="staffEmail" type="email"></div>
-            <div><label for="staffRole">Role *</label><input id="staffRole" required placeholder="Stage Technician"></div>
-            <div><label for="staffJoiningDate">Joining Date</label><input id="staffJoiningDate" type="date"></div>
-            <div><label for="staffStatus">Status *</label>
-              <select id="staffStatus"><option>Active</option><option>Inactive</option></select>
-            </div>
-            <div><label for="staffAddress">Address</label><textarea id="staffAddress" rows="2"></textarea></div>
-          </div>
-          <button id="staffSubmitBtn" type="submit">Save Staff</button>
-          <button id="staffCancelBtn" type="button" class="secondary">Cancel Edit</button>
-          <p id="staffFormMessage" class="message" role="status"></p>
-        </form>
-      </div>
-
+      <p class="note">View staff records, change their status, or delete a record. New staff must apply through the separate registration page and be approved.</p>
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th>Staff ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-            <th>Email</th><th>Role</th><th>Joining Date</th><th>Address</th>
-            <th>Status</th><th>Actions</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th>Staff ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
+              <th>Email</th><th>Role</th><th>Joining Date</th><th>Address</th>
+              <th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="staffRows"><tr><td colspan="10">Staff records will appear here.</td></tr></tbody>
         </table>
       </div>
@@ -173,18 +149,24 @@ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const $ = id => document.getElementById(id);
 
-function message(id, text) { $(id).textContent = text; }
+function message(id, text) {
+  $(id).textContent = text;
+}
+
 function money(value) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency", currency: "INR", maximumFractionDigits: 2
   }).format(Number(value || 0));
 }
+
 function cell(row, value) {
   const td = document.createElement("td");
-  td.textContent = value === null || value === undefined || value === "" ? "—" : String(value);
+  td.textContent = value === null || value === undefined || value === ""
+    ? "—" : String(value);
   row.appendChild(td);
   return td;
 }
+
 function emptyRow(tbody, text, colspan) {
   tbody.replaceChildren();
   const tr = document.createElement("tr");
@@ -192,6 +174,7 @@ function emptyRow(tbody, text, colspan) {
   td.colSpan = colspan;
   tbody.appendChild(tr);
 }
+
 function button(label, className, handler) {
   const b = document.createElement("button");
   b.type = "button";
@@ -200,6 +183,7 @@ function button(label, className, handler) {
   b.addEventListener("click", handler);
   return b;
 }
+
 function dateText(value) {
   if (!value) return "—";
   const d = new Date(value.length === 10 ? value + "T00:00:00" : value);
@@ -219,28 +203,36 @@ async function loadCustomers() {
   const { data, error } = await supabase.from("customers")
     .select("customer_id,full_name,email,phone,created_at")
     .order("created_at", { ascending: false });
+
   if (error) {
     emptyRow(tbody, "Unable to load customers: " + error.message, 5);
     return;
   }
+
   if (!data?.length) {
     emptyRow(tbody, "No customers found.", 5);
     return;
   }
+
   tbody.replaceChildren();
   for (const c of data) {
     const tr = document.createElement("tr");
-    cell(tr, c.customer_id); cell(tr, c.full_name);
-    cell(tr, c.email); cell(tr, c.phone); cell(tr, dateText(c.created_at));
+    cell(tr, c.customer_id);
+    cell(tr, c.full_name);
+    cell(tr, c.email);
+    cell(tr, c.phone);
+    cell(tr, dateText(c.created_at));
     tbody.appendChild(tr);
   }
 }
 
 async function loadEvents() {
   message("dashboardMessage", "Loading events...");
+
   const { data, error } = await supabase.from("events")
     .select("event_id,event_name,event_date,venue,budget,status,created_at,customers(full_name,email,phone)")
     .order("created_at", { ascending: false });
+
   if (error) {
     message("dashboardMessage", "Unable to load events: " + error.message);
     emptyRow($("eventRows"), "Unable to load events.", 9);
@@ -253,8 +245,10 @@ async function loadEvents() {
   $("confirmedEvents").textContent = events.filter(e => e.status === "Confirmed").length;
   $("completedEvents").textContent = events.filter(e => e.status === "Completed").length;
   $("cancelledEvents").textContent = events.filter(e => e.status === "Cancelled").length;
-  $("totalBudget").textContent = money(events.filter(e => e.status !== "Cancelled")
-    .reduce((sum, e) => sum + Number(e.budget || 0), 0));
+  $("totalBudget").textContent = money(
+    events.filter(e => e.status !== "Cancelled")
+      .reduce((sum, e) => sum + Number(e.budget || 0), 0)
+  );
 
   const tbody = $("eventRows");
   tbody.replaceChildren();
@@ -265,41 +259,55 @@ async function loadEvents() {
     cell(tr, e.event_id);
     cell(tr, e.customers?.full_name);
     cell(tr, [e.customers?.email, e.customers?.phone].filter(Boolean).join(" / "));
-    cell(tr, e.event_name); cell(tr, dateText(e.event_date));
-    cell(tr, e.venue); cell(tr, money(e.budget));
+    cell(tr, e.event_name);
+    cell(tr, dateText(e.event_date));
+    cell(tr, e.venue);
+    cell(tr, money(e.budget));
 
     const statusTd = document.createElement("td");
     const select = document.createElement("select");
+
     ["New", "Confirmed", "Completed", "Cancelled"].forEach(s => {
       const opt = document.createElement("option");
-      opt.value = s; opt.textContent = s; select.appendChild(opt);
+      opt.value = s;
+      opt.textContent = s;
+      select.appendChild(opt);
     });
+
     select.value = e.status || "New";
-    statusTd.appendChild(select); tr.appendChild(statusTd);
+    statusTd.appendChild(select);
+    tr.appendChild(statusTd);
 
     const actionTd = document.createElement("td");
     actionTd.appendChild(button("Save", "", async ev => {
-      ev.currentTarget.disabled = true;
+      const saveButton = ev.currentTarget;
+      saveButton.disabled = true;
+
       try {
         const { error: updateError } = await supabase.from("events")
           .update({ status: select.value }).eq("event_id", e.event_id);
+
         if (updateError) throw updateError;
         await loadEvents();
         message("dashboardMessage", "Event status updated.");
       } catch (err) {
         message("dashboardMessage", "Unable to update event: " + err.message);
       } finally {
-        ev.currentTarget.disabled = false;
+        saveButton.disabled = false;
       }
     }));
-    tr.appendChild(actionTd); tbody.appendChild(tr);
+
+    tr.appendChild(actionTd);
+    tbody.appendChild(tr);
   }
+
   message("dashboardMessage", "Dashboard data loaded.");
 }
 
 async function loadRequests() {
   const tbody = $("requestRows");
   message("requestsMessage", "Loading staff registration requests...");
+
   const { data, error } = await supabase.from("staff_registrations")
     .select("registration_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
     .order("created_at", { ascending: false });
@@ -309,40 +317,55 @@ async function loadRequests() {
     message("requestsMessage", "Check staff_registrations table and admin permissions.");
     return;
   }
+
   if (!data?.length) {
     emptyRow(tbody, "No staff registration requests found.", 11);
     message("requestsMessage", "Requests loaded.");
     return;
   }
+
   tbody.replaceChildren();
+
   for (const r of data) {
     const tr = document.createElement("tr");
-    cell(tr, r.registration_id); cell(tr, r.full_name); cell(tr, r.mobile);
-    cell(tr, r.whatsapp); cell(tr, r.email); cell(tr, r.role);
-    cell(tr, dateText(r.joining_date)); cell(tr, r.address);
-    cell(tr, r.status); cell(tr, dateText(r.created_at));
+    cell(tr, r.registration_id);
+    cell(tr, r.full_name);
+    cell(tr, r.mobile);
+    cell(tr, r.whatsapp);
+    cell(tr, r.email);
+    cell(tr, r.role);
+    cell(tr, dateText(r.joining_date));
+    cell(tr, r.address);
+    cell(tr, r.status);
+    cell(tr, dateText(r.created_at));
 
     const td = document.createElement("td");
+
     if (r.status === "Pending") {
       td.appendChild(button("Approve", "success", () => reviewRequest(r, "Approved")));
       td.appendChild(button("Reject", "danger", () => reviewRequest(r, "Rejected")));
     } else {
       td.textContent = "Reviewed";
     }
+
     tr.appendChild(td);
     tbody.appendChild(tr);
   }
+
   message("requestsMessage", "Requests loaded.");
 }
 
 async function reviewRequest(request, decision) {
   const actionText = decision === "Approved" ? "approve" : "reject";
-  if (!confirm("Are you sure you want to " + actionText + " " + request.full_name + "?")) return;
+
+  if (!confirm("Are you sure you want to " + actionText + " " + request.full_name + "?")) {
+    return;
+  }
 
   message("requestsMessage", "Processing request...");
+
   try {
     if (decision === "Approved") {
-      // Insert staff first. The staff_id column must be generated by the database.
       const staffData = {
         full_name: request.full_name,
         mobile: request.mobile,
@@ -353,136 +376,117 @@ async function reviewRequest(request, decision) {
         address: request.address,
         status: "Active"
       };
+
       const { error: insertError } = await supabase.from("staff").insert([staffData]);
       if (insertError) throw insertError;
     }
 
-    const { error: requestError } = await supabase.from("staff_registrations")
+    const { data: updated, error: requestError } = await supabase
+      .from("staff_registrations")
       .update({ status: decision })
       .eq("registration_id", request.registration_id)
-      .eq("status", "Pending");
+      .eq("status", "Pending")
+      .select("registration_id");
+
     if (requestError) throw requestError;
+
+    if (!updated?.length) {
+      throw new Error("Request was not updated. Refresh the list and verify the staff record before retrying.");
+    }
 
     message("requestsMessage", "Request " + decision.toLowerCase() + ".");
     await Promise.all([loadRequests(), loadStaff()]);
   } catch (err) {
     console.error("Staff request review failed:", err);
-    message("requestsMessage", "Unable to " + actionText + " request: " + err.message +
+    message(
+      "requestsMessage",
+      "Unable to " + actionText + " request: " + err.message +
       (decision === "Approved"
-        ? "\nCheck staff table requirements and permissions. If insertion succeeded but request update failed, verify records before retrying."
-        : ""));
+        ? "\nIf staff insertion succeeded but the request update failed, verify the staff table before retrying."
+        : "")
+    );
   }
 }
 
 async function loadStaff() {
   const tbody = $("staffRows");
+
   const { data, error } = await supabase.from("staff")
     .select("staff_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
     .order("created_at", { ascending: false });
+
   if (error) {
     emptyRow(tbody, "Unable to load staff: " + error.message, 10);
     return;
   }
+
   if (!data?.length) {
     emptyRow(tbody, "No staff records found.", 10);
     return;
   }
+
   tbody.replaceChildren();
+
   for (const s of data) {
     const tr = document.createElement("tr");
-    cell(tr, s.staff_id); cell(tr, s.full_name); cell(tr, s.mobile);
-    cell(tr, s.whatsapp); cell(tr, s.email); cell(tr, s.role);
-    cell(tr, dateText(s.joining_date)); cell(tr, s.address); cell(tr, s.status);
+    cell(tr, s.staff_id);
+    cell(tr, s.full_name);
+    cell(tr, s.mobile);
+    cell(tr, s.whatsapp);
+    cell(tr, s.email);
+    cell(tr, s.role);
+    cell(tr, dateText(s.joining_date));
+    cell(tr, s.address);
+    cell(tr, s.status);
+
     const td = document.createElement("td");
-    td.appendChild(button("Edit", "", () => editStaff(s)));
+
     td.appendChild(button(
       String(s.status).toLowerCase() === "active" ? "Set Inactive" : "Set Active",
-      "secondary", () => changeStaffStatus(s)
+      "secondary",
+      () => changeStaffStatus(s)
     ));
+
     td.appendChild(button("Delete", "danger", () => deleteStaff(s)));
+
     tr.appendChild(td);
     tbody.appendChild(tr);
   }
 }
 
-function resetStaffForm() {
-  $("staffForm").reset();
-  $("editStaffId").value = "";
-  $("staffFormTitle").textContent = "Add Staff Manually";
-  $("staffSubmitBtn").textContent = "Save Staff";
-  $("staffFormMessage").textContent = "";
-}
-function editStaff(s) {
-  $("editStaffId").value = s.staff_id;
-  $("staffName").value = s.full_name || "";
-  $("staffPhone").value = s.mobile || "";
-  $("staffWhatsapp").value = s.whatsapp || "";
-  $("staffEmail").value = s.email || "";
-  $("staffRole").value = s.role || "";
-  $("staffJoiningDate").value = s.joining_date || "";
-  $("staffAddress").value = s.address || "";
-  $("staffStatus").value = s.status || "Active";
-  $("staffFormTitle").textContent = "Edit Staff";
-  $("staffSubmitBtn").textContent = "Update Staff";
-  $("staffForm").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 async function changeStaffStatus(s) {
   const status = String(s.status).toLowerCase() === "active" ? "Inactive" : "Active";
+
   if (!confirm("Change " + s.full_name + "'s status to " + status + "?")) return;
-  const { error } = await supabase.from("staff").update({ status }).eq("staff_id", s.staff_id);
+
+  const { error } = await supabase.from("staff")
+    .update({ status }).eq("staff_id", s.staff_id);
+
   if (error) {
     alert("Unable to change status: " + error.message);
     return;
   }
+
   await loadStaff();
 }
 
 async function deleteStaff(s) {
   if (!confirm("Permanently delete " + s.full_name + "? This cannot be undone.")) return;
-  const { error } = await supabase.from("staff").delete().eq("staff_id", s.staff_id);
+
+  const { error } = await supabase.from("staff")
+    .delete().eq("staff_id", s.staff_id);
+
   if (error) {
     alert("Unable to delete staff: " + error.message);
     return;
   }
-  if (String($("editStaffId").value) === String(s.staff_id)) resetStaffForm();
+
   await loadStaff();
 }
 
-$("staffForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  const btn = $("staffSubmitBtn");
-  btn.disabled = true;
-  message("staffFormMessage", "Saving staff...");
-  const staffData = {
-    full_name: $("staffName").value.trim(),
-    mobile: $("staffPhone").value.trim(),
-    whatsapp: $("staffWhatsapp").value.trim() || null,
-    email: $("staffEmail").value.trim() || null,
-    role: $("staffRole").value.trim(),
-    joining_date: $("staffJoiningDate").value || null,
-    address: $("staffAddress").value.trim() || null,
-    status: $("staffStatus").value
-  };
-  const id = $("editStaffId").value;
-  try {
-    const result = id
-      ? await supabase.from("staff").update(staffData).eq("staff_id", id)
-      : await supabase.from("staff").insert([staffData]);
-    if (result.error) throw result.error;
-    resetStaffForm();
-    message("staffFormMessage", id ? "Staff updated successfully." : "Staff added successfully.");
-    await loadStaff();
-  } catch (err) {
-    message("staffFormMessage", "Unable to save staff: " + err.message);
-  } finally {
-    btn.disabled = false;
-  }
-});
-$("staffCancelBtn").addEventListener("click", resetStaffForm);
-
 async function showDashboard(user) {
   const admin = await isAdmin(user.id);
+
   if (!admin) {
     await supabase.auth.signOut();
     $("dashboard").classList.add("hidden");
@@ -490,21 +494,30 @@ async function showDashboard(user) {
     message("loginMessage", "This account is not registered as an Ocean Production admin.");
     return;
   }
+
   $("loginPanel").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
   $("welcome").textContent = "Signed in as " + (admin.full_name || admin.email || "Administrator");
-  await Promise.allSettled([loadEvents(), loadCustomers(), loadRequests(), loadStaff()]);
+
+  await Promise.allSettled([
+    loadEvents(),
+    loadCustomers(),
+    loadRequests(),
+    loadStaff()
+  ]);
 }
 
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
   $("loginButton").disabled = true;
   message("loginMessage", "Signing in...");
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: $("email").value.trim(),
       password: $("password").value
     });
+
     if (error) throw error;
     await showDashboard(data.user);
   } catch (err) {
@@ -524,14 +537,17 @@ $("refreshButton").addEventListener("click", async () => {
     message("dashboardMessage", "Refresh failed: " + err.message);
   }
 });
+
 $("refreshRequestsButton").addEventListener("click", loadRequests);
 
 $("logoutButton").addEventListener("click", async () => {
   const { error } = await supabase.auth.signOut();
+
   if (error) {
     message("dashboardMessage", "Sign out failed: " + error.message);
     return;
   }
+
   $("dashboard").classList.add("hidden");
   $("loginPanel").classList.remove("hidden");
   $("loginForm").reset();
@@ -547,6 +563,7 @@ async function restoreSession() {
     message("loginMessage", "Unable to restore session: " + err.message);
   }
 }
+
 restoreSession();
 </script>
 </body>
