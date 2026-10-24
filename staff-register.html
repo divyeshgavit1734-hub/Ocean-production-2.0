@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Production | Staff Registration</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#08111f;
+  color:#f5f7fb;
+}
+header{
+  text-align:center;
+  padding:25px 15px;
+  background:#111d30;
+  border-bottom:1px solid #293850;
+}
+header h1{color:#ff9d00;margin:0 0 10px}
+header p{color:#bdc8d8;margin:0}
+main{max-width:650px;margin:25px auto;padding:15px}
+.panel{
+  background:#111d30;
+  border:1px solid #293850;
+  border-radius:14px;
+  padding:22px;
+}
+h2{color:#ffb02e}
+.note{color:#bdc8d8;line-height:1.6;font-size:14px}
+label{display:block;margin-top:15px;margin-bottom:6px}
+input,select,textarea,button{
+  width:100%;
+  padding:12px;
+  border-radius:7px;
+  font-size:15px;
+}
+input,select,textarea{
+  background:#081525;
+  color:white;
+  border:1px solid #354760;
+}
+textarea{resize:vertical}
+button{
+  margin-top:20px;
+  background:#ff9d00;
+  color:#111;
+  border:0;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{opacity:.6}
+#message{white-space:pre-wrap;line-height:1.6}
+footer{text-align:center;color:#bdc8d8;font-size:13px;padding:20px}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>OCEAN PRODUCTION</h1>
+  <p>Staff Registration Portal</p>
+</header>
+
+<main>
+<section class="panel">
+  <h2>Staff Application Form</h2>
+  <p class="note">
+    Fill in your details carefully. Your application will be reviewed
+    by the Ocean Production administration team.
+  </p>
+
+  <form id="staffRegistrationForm">
+    <label for="full_name">Full Name *</label>
+    <input id="full_name" name="full_name" type="text"
+      autocomplete="name" maxlength="100" required>
+
+    <label for="mobile">Mobile Number *</label>
+    <input id="mobile" name="mobile" type="tel"
+      autocomplete="tel" maxlength="20" required>
+
+    <label for="whatsapp">WhatsApp Number</label>
+    <input id="whatsapp" name="whatsapp" type="tel" maxlength="20">
+
+    <label for="email">Email Address</label>
+    <input id="email" name="email" type="email"
+      autocomplete="email" maxlength="254">
+
+    <label for="role">Preferred Role *</label>
+    <select id="role" name="role" required>
+      <option value="">Select your role</option>
+      <option value="Stage Technician">Stage Technician</option>
+      <option value="SFX Operator">Special Effects Operator</option>
+      <option value="CO2 Operator">CO2 Operator</option>
+      <option value="Confetti Operator">Confetti Operator</option>
+      <option value="Backstage Crew">Backstage Crew</option>
+      <option value="Front Stage Crew">Front Stage Crew</option>
+      <option value="Event Assistant">Event Assistant</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="joining_date">Available Joining Date</label>
+    <input id="joining_date" name="joining_date" type="date">
+
+    <label for="address">Address</label>
+    <textarea id="address" name="address" rows="3"
+      maxlength="500" autocomplete="street-address"></textarea>
+
+    <button id="submitButton" type="submit">
+      Submit Application
+    </button>
+  </form>
+
+  <p id="message" role="status" aria-live="polite"></p>
+</section>
+</main>
+
+<footer>
+  © Ocean Production | Staff Registration
+</footer>
+
+<script type="module">
+import { createClient } from
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL =
+  "https://hsdgxktuutisvrsaieeq.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const form = document.getElementById("staffRegistrationForm");
+const message = document.getElementById("message");
+const submitButton = document.getElementById("submitButton");
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  submitButton.disabled = true;
+  message.textContent = "Submitting your application...";
+
+  const application = {
+    full_name: document.getElementById("full_name").value.trim(),
+    mobile: document.getElementById("mobile").value.trim(),
+    whatsapp: document.getElementById("whatsapp").value.trim() || null,
+    email: document.getElementById("email").value.trim() || null,
+    role: document.getElementById("role").value,
+    joining_date: document.getElementById("joining_date").value || null,
+    address: document.getElementById("address").value.trim() || null
+  };
+
+  try {
+    const { error } = await supabase
+      .from("staff_registrations")
+      .insert([application]);
+
+    if (error) throw error;
+
+    form.reset();
+    message.textContent =
+      "Application submitted successfully! Your application is awaiting admin review.";
+  } catch (error) {
+    console.error("Staff registration failed:", error);
+    message.textContent =
+      "Your application could not be submitted. Please try again later.";
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
