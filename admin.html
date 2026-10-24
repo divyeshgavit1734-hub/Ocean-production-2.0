@@ -356,58 +356,82 @@ async function loadRequests() {
 }
 
 async function reviewRequest(request, decision) {
-  const actionText = decision === "Approved" ? "approve" : "reject";
+const actionText = decision === "Approved" ? "approve" : "reject";
 
-  if (!confirm("Are you sure you want to " + actionText + " " + request.full_name + "?")) {
-    return;
-  }
+if (!confirm("Are you sure you want to " + actionText + " " + request.full_name + "?")) {
+return;
+}
 
-  message("requestsMessage", "Processing request...");
+message("requestsMessage", "Processing request...");
 
-  try {
-    if (decision === "Approved") {
-      const staffData = {
-        full_name: request.full_name,
-        mobile: request.mobile,
-        whatsapp: request.whatsapp,
-        email: request.email,
-        role: request.role,
-        joining_date: request.joining_date,
-        address: request.address,
-        status: "Active"
-      };
+try {
+if (decision === "Approved") {
+// Check whether this email already exists in the staff table.
+const { data: existingStaff, error: lookupError } = await supabase
+.from("staff")
+.select("staff_id, full_name, email, status")
+.ilike("email", request.email.trim())
+.limit(1);
 
-      const { error: insertError } = await supabase.from("staff").insert([staffData]);
-      if (insertError) throw insertError;
-    }
+  if (lookupError) throw lookupError;
 
-    const { data: updated, error: requestError } = await supabase
-      .from("staff_registrations")
-      .update({ status: decision })
-      .eq("registration_id", request.registration_id)
-      .eq("status", "Pending")
-      .select("registration_id");
+  if (existingStaff && existingStaff.length > 0) {
+    // The staff record already exists. Do not insert a duplicate.
+    console.log("Existing staff record found:", existingStaff[0].staff_id);
+  } else {
+    // Create a staff record only when the email does not already exist.
+    const staffData = {
+      full_name: request.full_name,
+      mobile: request.mobile,
+      whatsapp: request.whatsapp,
+      email: request.email.trim(),
+      role: request.role,
+      joining_date: request.joining_date,
+      address: request.address,
+      status: "Active"
+    };
 
-    if (requestError) throw requestError;
+    const { error: insertError } = await supabase
+      .from("staff")
+      .insert([staffData]);
 
-    if (!updated?.length) {
-      throw new Error("Request was not updated. Refresh the list and verify the staff record before retrying.");
-    }
-
-    message("requestsMessage", "Request " + decision.toLowerCase() + ".");
-    await Promise.all([loadRequests(), loadStaff()]);
-  } catch (err) {
-    console.error("Staff request review failed:", err);
-    message(
-      "requestsMessage",
-      "Unable to " + actionText + " request: " + err.message +
-      (decision === "Approved"
-        ? "\nIf staff insertion succeeded but the request update failed, verify the staff table before retrying."
-        : "")
-    );
+    if (insertError) throw insertError;
   }
 }
 
+// Update the application only after the staff record is handled.
+const { data: updated, error: requestError } = await supabase
+  .from("staff_registrations")
+  .update({ status: decision })
+  .eq("registration_id", request.registration_id)
+  .eq("status", "Pending")
+  .select("registration_id");
+
+if (requestError) throw requestError;
+
+if (!updated || updated.length === 0) {
+  throw new Error(
+    "Application status was not updated. Refresh the requests and check the application status."
+  );
+}
+
+message(
+  "requestsMessage",
+  "Request " + decision.toLowerCase() + " successfully."
+);
+
+await Promise.all([loadRequests(), loadStaff()]);
+
+} catch (err) {
+console.error("Staff request review failed:", err);
+
+message(
+  "requestsMessage",
+  "Unable to " + actionText + " request: " + err.message
+);
+
+}
+}
 async function loadStaff() {
   const tbody = $("staffRows");
 
