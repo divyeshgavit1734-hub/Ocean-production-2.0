@@ -344,27 +344,23 @@ form.addEventListener("submit", async function (event) {
     submitBtn.textContent = "Submitting Registration...";
 
     try {
-        const { data: result, error } = await db
-            .from("trek_registrations")
-            .insert([data])
-            .select("registration_id")
-            .single();
+        const { error } = await db
+    .from("trek_registrations")
+    .insert([data]);
 
-        if (error) {
-            throw error;
-        }
+if (error) {
+    throw error;
+}
 
-        form.reset();
+form.reset();
 
-        otherBox.classList.add("hidden");
-        otherInput.required = false;
+otherBox.classList.add("hidden");
+otherInput.required = false;
 
-        message.textContent =
-            "Registration successful! Your Registration ID is " +
-            result.registration_id +
-            ". Please save this ID for reference.";
+message.textContent =
+    "Registration successful! Your details have been saved.";
 
-        message.className = "success";
+message.className = "success";
 
     } catch (error) {
         console.error("Registration error:", error);
