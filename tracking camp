@@ -243,8 +243,8 @@ button:disabled {
   NEVER put your service_role or secret key here.
 */
 
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
 
 const form = document.getElementById("trekForm");
 const message = document.getElementById("message");
