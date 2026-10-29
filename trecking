@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ghambirgad Trek Registration | Ocean Production</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px 12px;
+    font-family: Arial, sans-serif;
+    background: #08111f;
+    color: white;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+}
+
+.header {
+    text-align: center;
+    padding: 22px 12px;
+    background: #111d30;
+    border-radius: 14px;
+    border-bottom: 4px solid #ff9d00;
+}
+
+.header h1 {
+    color: #ff9d00;
+    margin-bottom: 8px;
+}
+
+.header h2 {
+    font-size: 23px;
+}
+
+.header p {
+    line-height: 1.6;
+}
+
+.fee {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffb52e;
+}
+
+form {
+    margin-top: 20px;
+    padding: 20px;
+    background: #111d30;
+    border-radius: 14px;
+}
+
+label {
+    display: block;
+    margin: 18px 0 8px;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #34445b;
+    border-radius: 8px;
+    background: #08111f;
+    color: white;
+    font-size: 16px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 24px;
+    border: none;
+    border-radius: 8px;
+    background: #ff9d00;
+    color: #08111f;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.6;
+}
+
+#message {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+}
+
+.success {
+    background: #123d2a;
+    color: #9cffbd;
+}
+
+.error {
+    background: #512020;
+    color: #ffd0d0;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 22px;
+    line-height: 1.8;
+    color: #d2d9e4;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <h1>OCEAN PRODUCTION</h1>
+        <h2>NCC TREKKING AT GHAMBIRGAD</h2>
+
+        <p>
+            NCC Cadets, Are You Ready?<br>
+            <strong>HOW IS THE JOSH?</strong>
+        </p>
+
+        <p class="fee">ENTRY FEE: ₹200 / PERSON</p>
+
+        <p>Refreshments and drinking water will be provided.</p>
+    </header>
+
+    <form id="trekForm">
+
+        <label for="full_name">Full Name *</label>
+        <input id="full_name" name="full_name"
+               type="text" maxlength="120" required>
+
+        <label for="phone_number">Phone Number *</label>
+        <input id="phone_number" name="phone_number"
+               type="tel" inputmode="numeric"
+               pattern="[0-9]{10}" maxlength="10"
+               placeholder="10-digit mobile number" required>
+
+        <label for="address">Full Address *</label>
+        <textarea id="address" name="address"
+                  maxlength="500" required></textarea>
+
+        <label for="course">Course / Class *</label>
+        <input id="course" name="course"
+               type="text" maxlength="100"
+               placeholder="Enter your course or class" required>
+
+        <label for="transport_available">
+            Bike or Scooty Available? *
+        </label>
+
+        <select id="transport_available"
+                name="transport_available" required>
+            <option value="">Select an option</option>
+            <option value="Bike">Bike</option>
+            <option value="Scooty">Scooty</option>
+            <option value="Both">Both</option>
+            <option value="No">No, I need transport</option>
+        </select>
+
+        <label for="pickup_location">Pickup Location *</label>
+
+        <select id="pickup_location"
+                name="pickup_location" required>
+            <option value="">Select pickup location</option>
+            <option value="Silvassa">Silvassa</option>
+            <option value="Khanvel">Khanvel</option>
+            <option value="Dapada">Dapada</option>
+            <option value="Rakholi">Rakholi</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <div id="otherLocationBox" class="hidden">
+            <label for="other_pickup_location">
+                Specify Other Pickup Location *
+            </label>
+
+            <input id="other_pickup_location"
+                   name="other_pickup_location"
+                   type="text" maxlength="150">
+        </div>
+
+        <label for="suggestions">
+            Suggestions or Special Requests
+        </label>
+
+        <textarea id="suggestions" name="suggestions"
+                  maxlength="1000"
+                  placeholder="Optional"></textarea>
+
+        <p>
+            By submitting, you confirm that your information
+            is correct and agree to follow the trek organisers'
+            safety instructions.
+        </p>
+
+        <button type="submit" id="submitBtn">
+            REGISTER FOR THE TREK
+        </button>
+
+        <div id="message" role="status"
+             aria-live="polite"></div>
+
+    </form>
+
+    <footer class="footer">
+        <strong>Organised by Ocean Production</strong><br>
+        Trek Organisers: Divyesh &amp; Ghanshyam<br>
+        Contact: 9714704370
+    </footer>
+
+</div>
+
+<script>
+/*
+  STEP 2A:
+  Replace the two placeholders below with your
+  Supabase Project URL and publishable/anon key.
+
+  NEVER put your service_role or secret key here.
+*/
+
+const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+
+const form = document.getElementById("trekForm");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+const pickupSelect = document.getElementById("pickup_location");
+const otherBox = document.getElementById("otherLocationBox");
+const otherInput = document.getElementById("other_pickup_location");
+
+const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+pickupSelect.addEventListener("change", function () {
+    const isOther = this.value === "Other";
+
+    otherBox.classList.toggle("hidden", !isOther);
+    otherInput.required = isOther;
+
+    if (!isOther) {
+        otherInput.value = "";
+    }
+});
+
+form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    message.textContent = "";
+    message.className = "";
+
+    if (
+        SUPABASE_URL.startsWith("YOUR_") ||
+        SUPABASE_KEY.startsWith("YOUR_")
+    ) {
+        message.textContent =
+            "Please configure your Supabase project credentials first.";
+        message.className = "error";
+        return;
+    }
+
+    if (!form.reportValidity()) {
+        return;
+    }
+
+    const phone = document.getElementById("phone_number")
+        .value.trim();
+
+    if (!/^[0-9]{10}$/.test(phone)) {
+        message.textContent =
+            "Please enter a valid 10-digit phone number.";
+        message.className = "error";
+        return;
+    }
+
+    const data = {
+        full_name: document.getElementById("full_name")
+            .value.trim(),
+
+        phone_number: phone,
+
+        address: document.getElementById("address")
+            .value.trim(),
+
+        course: document.getElementById("course")
+            .value.trim(),
+
+        transport_available:
+            document.getElementById("transport_available").value,
+
+        pickup_location: pickupSelect.value,
+
+        other_pickup_location:
+            pickupSelect.value === "Other"
+                ? otherInput.value.trim()
+                : null,
+
+        suggestions:
+            document.getElementById("suggestions")
+                .value.trim() || null
+    };
+
+    if (
+        !data.full_name ||
+        !data.address ||
+        !data.course ||
+        (data.pickup_location === "Other" &&
+         !data.other_pickup_location)
+    ) {
+        message.textContent =
+            "Please complete all required fields.";
+        message.className = "error";
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting Registration...";
+
+    try {
+        const { error } = await db
+    .from("trek_registrations")
+    .insert([data]);
+
+if (error) {
+    throw error;
+}
+
+form.reset();
+
+otherBox.classList.add("hidden");
+otherInput.required = false;
+
+message.textContent =
+    "Registration successful! Your details have been saved.";
+
+message.className = "success";
+
+    } catch (error) {
+        console.error("Registration error:", error);
+
+        message.textContent =
+            "Registration failed. Please check your internet " +
+            "connection or contact 9714704370 for assistance.";
+
+        message.className = "error";
+
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "REGISTER FOR THE TREK";
+    }
+});
+</script>
+
+</body>
+</html>
