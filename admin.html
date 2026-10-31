@@ -11,7 +11,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#08111f;color:#f5f7fb}
 header{padding:20px;background:#111d30;border-bottom:1px solid #293850}
 header h1{color:#ff9d00;margin:0 0 6px}
 header p,.note{color:#bdc8d8}
-main{max-width:1200px;margin:auto;padding:18px}
+main{max-width:1300px;margin:auto;padding:18px}
 .panel,.stat{background:#111d30;border:1px solid #293850;border-radius:12px;padding:18px;margin-bottom:18px}
 input,select,textarea,button{width:100%;padding:11px;margin:6px 0;border-radius:7px;font-size:14px}
 input,select,textarea{background:#081525;color:white;border:1px solid #354760}
@@ -30,562 +30,717 @@ button:disabled{opacity:.6;cursor:wait}
 table{width:100%;border-collapse:collapse;min-width:750px}
 th,td{text-align:left;padding:10px;border-bottom:1px solid #293850;vertical-align:top}
 th{color:#ffb02e}
-td button{min-width:85px;margin:3px}
-@media(max-width:600px){main{padding:10px}.panel{padding:13px}header{padding:16px}}
+td button{min-width:85px;width:auto;margin:3px}
+.staff-tools{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center}
+.staff-tools input,.staff-tools select,.staff-tools button{margin:6px 0}
+@media(max-width:650px){
+main{padding:10px}
+.panel{padding:13px}
+header{padding:16px}
+.staff-tools{grid-template-columns:1fr}
+}
 </style>
 </head>
 
 <body>
 <header>
-  <h1>OCEAN PRODUCTION</h1>
-  <p>Administration Dashboard</p>
+<h1>OCEAN PRODUCTION</h1>
+<p>Administration Dashboard</p>
 </header>
 
 <main>
-  <section id="loginPanel" class="panel">
-    <h2>Admin Login</h2>
-    <p class="note">Sign in with your authorized administrator account.</p>
-    <form id="loginForm">
-      <label for="email">Admin Email</label>
-      <input id="email" type="email" autocomplete="username" required>
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" required>
-      <button id="loginButton" type="submit">Sign In</button>
-    </form>
-    <p id="loginMessage" class="message" role="status"></p>
-  </section>
 
-  <section id="dashboard" class="hidden">
-    <section class="panel">
-      <h2>Dashboard Overview</h2>
-      <p id="welcome"></p>
-      <button id="refreshButton">Refresh Data</button>
-      <button id="logoutButton" class="secondary">Sign Out</button>
-      <p id="dashboardMessage" class="message" role="status"></p>
-    </section>
+<section id="loginPanel" class="panel">
+<h2>Admin Login</h2>
+<p class="note">Sign in with your authorized administrator account.</p>
+<form id="loginForm">
+<label for="email">Admin Email</label>
+<input id="email" type="email" autocomplete="username" required>
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" required>
+<button id="loginButton" type="submit">Sign In</button>
+</form>
+<p id="loginMessage" class="message" role="status"></p>
+</section>
 
-    <div class="stats">
-      <div class="stat"><span>Total Events</span><strong id="totalEvents">—</strong></div>
-      <div class="stat"><span>New Requests</span><strong id="newEvents">—</strong></div>
-      <div class="stat"><span>Confirmed</span><strong id="confirmedEvents">—</strong></div>
-      <div class="stat"><span>Completed</span><strong id="completedEvents">—</strong></div>
-      <div class="stat"><span>Cancelled</span><strong id="cancelledEvents">—</strong></div>
-      <div class="stat"><span>Total Listed Budget</span><strong id="totalBudget">—</strong></div>
-    </div>
+<section id="dashboard" class="hidden">
 
-    <section class="panel">
-      <h2>Event Registrations</h2>
-      <p class="note">Update an event's status and press Save.</p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th><th>Customer</th><th>Contact</th><th>Event</th>
-              <th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="eventRows"><tr><td colspan="9">Sign in to load events.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+<section class="panel">
+<h2>Dashboard Overview</h2>
+<p id="welcome"></p>
+<button id="refreshButton">Refresh All Data</button>
+<button id="logoutButton" class="secondary">Sign Out</button>
+<p id="dashboardMessage" class="message" role="status"></p>
+</section>
 
-    <section class="panel">
-      <h2>Customer Management</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Customer ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Registered On</th>
-            </tr>
-          </thead>
-          <tbody id="customerRows"><tr><td colspan="5">Customer records will appear here.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+<div class="stats">
+<div class="stat"><span>Total Events</span><strong id="totalEvents">—</strong></div>
+<div class="stat"><span>New Requests</span><strong id="newEvents">—</strong></div>
+<div class="stat"><span>Confirmed</span><strong id="confirmedEvents">—</strong></div>
+<div class="stat"><span>Completed</span><strong id="completedEvents">—</strong></div>
+<div class="stat"><span>Cancelled</span><strong id="cancelledEvents">—</strong></div>
+<div class="stat"><span>Total Listed Budget</span><strong id="totalBudget">—</strong></div>
+</div>
 
-    <section class="panel">
-      <h2>Staff Registration Requests</h2>
-      <p class="note">Review applications. Approval creates a staff record; rejection does not create one.</p>
-      <button id="refreshRequestsButton" class="secondary">Refresh Requests</button>
-      <p id="requestsMessage" class="message" role="status"></p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Request ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-              <th>Email</th><th>Requested Role</th><th>Joining Date</th>
-              <th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="requestRows"><tr><td colspan="11">No requests loaded.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+<section class="panel">
+<h2>Event Registrations</h2>
+<p class="note">Update an event's status and press Save.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>ID</th><th>Customer</th><th>Contact</th><th>Event</th>
+<th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="eventRows">
+<tr><td colspan="9">Sign in to load events.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
 
-    <section class="panel">
-      <h2>Staff Management</h2>
-      <p class="note">View staff records, change their status, or delete a record. New staff must apply through the separate registration page and be approved.</p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Staff ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-              <th>Email</th><th>Role</th><th>Joining Date</th><th>Address</th>
-              <th>Status</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="staffRows"><tr><td colspan="10">Staff records will appear here.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </section>
+<section class="panel">
+<h2>Customer Management</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Customer ID</th><th>Full Name</th><th>Email</th>
+<th>Phone</th><th>Registered On</th>
+</tr>
+</thead>
+<tbody id="customerRows">
+<tr><td colspan="5">Customer records will appear here.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="panel">
+<h2>Staff Registration Requests</h2>
+<p class="note">Review applications. Approval creates a staff record; rejection does not create one.</p>
+<button id="refreshRequestsButton" class="secondary">Refresh Requests</button>
+<p id="requestsMessage" class="message" role="status"></p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Request ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
+<th>Email</th><th>Requested Role</th><th>Joining Date</th>
+<th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th>
+</tr>
+</thead>
+<tbody id="requestRows">
+<tr><td colspan="11">No requests loaded.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="panel">
+<h2>Staff Management</h2>
+<p class="note">Search, edit, activate/deactivate and delete staff records.</p>
+
+<div class="stats">
+<div class="stat"><span>Total Staff</span><strong id="staffTotal">0</strong></div>
+<div class="stat"><span>Active Staff</span><strong id="staffActive">0</strong></div>
+<div class="stat"><span>Inactive Staff</span><strong id="staffInactive">0</strong></div>
+</div>
+
+<div class="staff-tools">
+<input id="staffSearch" type="search" placeholder="Search name, mobile or email...">
+<select id="staffStatusFilter">
+<option value="All">All Staff</option>
+<option value="Active">Active</option>
+<option value="Inactive">Inactive</option>
+</select>
+<button id="refreshStaffButton" class="secondary">Refresh Staff</button>
+</div>
+
+<p id="staffMessage" class="message" role="status"></p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Staff ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
+<th>Email</th><th>Role</th><th>Joining Date</th>
+<th>Address</th><th>Status</th><th>Actions</th>
+</tr>
+</thead>
+<tbody id="staffRows">
+<tr><td colspan="10">Staff records will appear here.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</section>
 </main>
 
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL = "https://hsdgxktuutisvrsaieeq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-const $ = id => document.getElementById(id);
+const SUPABASE_URL="https://hsdgxktuutisvrsaieeq.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
+const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
-function message(id, text) {
-  $(id).textContent = text;
+const $=id=>document.getElementById(id);
+let staffCache=[];
+
+function message(id,text){
+$(id).textContent=text;
 }
 
-function money(value) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency", currency: "INR", maximumFractionDigits: 2
-  }).format(Number(value || 0));
+function money(value){
+return new Intl.NumberFormat("en-IN",{
+style:"currency",
+currency:"INR",
+maximumFractionDigits:2
+}).format(Number(value||0));
 }
 
-function cell(row, value) {
-  const td = document.createElement("td");
-  td.textContent = value === null || value === undefined || value === ""
-    ? "—" : String(value);
-  row.appendChild(td);
-  return td;
+function cell(row,value){
+const td=document.createElement("td");
+td.textContent=value===null||value===undefined||value===""?"—":String(value);
+row.appendChild(td);
+return td;
 }
 
-function emptyRow(tbody, text, colspan) {
-  tbody.replaceChildren();
-  const tr = document.createElement("tr");
-  const td = cell(tr, text);
-  td.colSpan = colspan;
-  tbody.appendChild(tr);
+function emptyRow(tbody,text,colspan){
+tbody.replaceChildren();
+const tr=document.createElement("tr");
+const td=cell(tr,text);
+td.colSpan=colspan;
+tbody.appendChild(tr);
 }
 
-function button(label, className, handler) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.textContent = label;
-  if (className) b.className = className;
-  b.addEventListener("click", handler);
-  return b;
+function button(label,className,handler){
+const b=document.createElement("button");
+b.type="button";
+b.textContent=label;
+if(className)b.className=className;
+b.addEventListener("click",handler);
+return b;
 }
 
-function dateText(value) {
-  if (!value) return "—";
-  const d = new Date(value.length === 10 ? value + "T00:00:00" : value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString("en-IN");
+function dateText(value){
+if(!value)return "—";
+const d=new Date(value.length===10?value+"T00:00:00":value);
+return Number.isNaN(d.getTime())?value:d.toLocaleDateString("en-IN");
 }
 
-async function isAdmin(userId) {
-  const { data, error } = await supabase.from("admins")
-    .select("admin_id,full_name,email")
-    .eq("auth_user_id", userId).maybeSingle();
-  if (error) throw error;
-  return data;
+async function isAdmin(userId){
+const {data,error}=await supabase.from("admins")
+.select("admin_id,full_name,email")
+.eq("auth_user_id",userId).maybeSingle();
+if(error)throw error;
+return data;
 }
 
-async function loadCustomers() {
-  const tbody = $("customerRows");
-  const { data, error } = await supabase.from("customers")
-    .select("customer_id,full_name,email,phone,created_at")
-    .order("created_at", { ascending: false });
+async function loadCustomers(){
+const tbody=$("customerRows");
+const {data,error}=await supabase.from("customers")
+.select("customer_id,full_name,email,phone,created_at")
+.order("created_at",{ascending:false});
 
-  if (error) {
-    emptyRow(tbody, "Unable to load customers: " + error.message, 5);
-    return;
-  }
-
-  if (!data?.length) {
-    emptyRow(tbody, "No customers found.", 5);
-    return;
-  }
-
-  tbody.replaceChildren();
-  for (const c of data) {
-    const tr = document.createElement("tr");
-    cell(tr, c.customer_id);
-    cell(tr, c.full_name);
-    cell(tr, c.email);
-    cell(tr, c.phone);
-    cell(tr, dateText(c.created_at));
-    tbody.appendChild(tr);
-  }
-}
-
-async function loadEvents() {
-  message("dashboardMessage", "Loading events...");
-
-  const { data, error } = await supabase.from("events")
-    .select("event_id,event_name,event_date,venue,budget,status,created_at,customers(full_name,email,phone)")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    message("dashboardMessage", "Unable to load events: " + error.message);
-    emptyRow($("eventRows"), "Unable to load events.", 9);
-    return;
-  }
-
-  const events = data || [];
-  $("totalEvents").textContent = events.length;
-  $("newEvents").textContent = events.filter(e => e.status === "New").length;
-  $("confirmedEvents").textContent = events.filter(e => e.status === "Confirmed").length;
-  $("completedEvents").textContent = events.filter(e => e.status === "Completed").length;
-  $("cancelledEvents").textContent = events.filter(e => e.status === "Cancelled").length;
-  $("totalBudget").textContent = money(
-    events.filter(e => e.status !== "Cancelled")
-      .reduce((sum, e) => sum + Number(e.budget || 0), 0)
-  );
-
-  const tbody = $("eventRows");
-  tbody.replaceChildren();
-  if (!events.length) emptyRow(tbody, "No event registrations found.", 9);
-
-  for (const e of events) {
-    const tr = document.createElement("tr");
-    cell(tr, e.event_id);
-    cell(tr, e.customers?.full_name);
-    cell(tr, [e.customers?.email, e.customers?.phone].filter(Boolean).join(" / "));
-    cell(tr, e.event_name);
-    cell(tr, dateText(e.event_date));
-    cell(tr, e.venue);
-    cell(tr, money(e.budget));
-
-    const statusTd = document.createElement("td");
-    const select = document.createElement("select");
-
-    ["New", "Confirmed", "Completed", "Cancelled"].forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s;
-      opt.textContent = s;
-      select.appendChild(opt);
-    });
-
-    select.value = e.status || "New";
-    statusTd.appendChild(select);
-    tr.appendChild(statusTd);
-
-    const actionTd = document.createElement("td");
-    actionTd.appendChild(button("Save", "", async ev => {
-      const saveButton = ev.currentTarget;
-      saveButton.disabled = true;
-
-      try {
-        const { error: updateError } = await supabase.from("events")
-          .update({ status: select.value }).eq("event_id", e.event_id);
-
-        if (updateError) throw updateError;
-        await loadEvents();
-        message("dashboardMessage", "Event status updated.");
-      } catch (err) {
-        message("dashboardMessage", "Unable to update event: " + err.message);
-      } finally {
-        saveButton.disabled = false;
-      }
-    }));
-
-    tr.appendChild(actionTd);
-    tbody.appendChild(tr);
-  }
-
-  message("dashboardMessage", "Dashboard data loaded.");
-}
-
-async function loadRequests() {
-  const tbody = $("requestRows");
-  message("requestsMessage", "Loading staff registration requests...");
-
-  const { data, error } = await supabase.from("staff_registrations")
-    .select("registration_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    emptyRow(tbody, "Unable to load requests: " + error.message, 11);
-    message("requestsMessage", "Check staff_registrations table and admin permissions.");
-    return;
-  }
-
-  if (!data?.length) {
-    emptyRow(tbody, "No staff registration requests found.", 11);
-    message("requestsMessage", "Requests loaded.");
-    return;
-  }
-
-  tbody.replaceChildren();
-
-  for (const r of data) {
-    const tr = document.createElement("tr");
-    cell(tr, r.registration_id);
-    cell(tr, r.full_name);
-    cell(tr, r.mobile);
-    cell(tr, r.whatsapp);
-    cell(tr, r.email);
-    cell(tr, r.role);
-    cell(tr, dateText(r.joining_date));
-    cell(tr, r.address);
-    cell(tr, r.status);
-    cell(tr, dateText(r.created_at));
-
-    const td = document.createElement("td");
-
-    if (r.status === "Pending") {
-      td.appendChild(button("Approve", "success", () => reviewRequest(r, "Approved")));
-      td.appendChild(button("Reject", "danger", () => reviewRequest(r, "Rejected")));
-    } else {
-      td.textContent = "Reviewed";
-    }
-
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-  }
-
-  message("requestsMessage", "Requests loaded.");
-}
-
-async function reviewRequest(request, decision) {
-const actionText = decision === "Approved" ? "approve" : "reject";
-
-if (!confirm("Are you sure you want to " + actionText + " " + request.full_name + "?")) {
+if(error){
+emptyRow(tbody,"Unable to load customers: "+error.message,5);
 return;
 }
 
-message("requestsMessage", "Processing request...");
-
-try {
-if (decision === "Approved") {
-// Check whether this email already exists in the staff table.
-const { data: existingStaff, error: lookupError } = await supabase
-.from("staff")
-.select("staff_id, full_name, email, status")
-.ilike("email", request.email.trim())
-.limit(1);
-
-  if (lookupError) throw lookupError;
-
-  if (existingStaff && existingStaff.length > 0) {
-    // The staff record already exists. Do not insert a duplicate.
-    console.log("Existing staff record found:", existingStaff[0].staff_id);
-  } else {
-    // Create a staff record only when the email does not already exist.
-    const staffData = {
-      full_name: request.full_name,
-      mobile: request.mobile,
-      whatsapp: request.whatsapp,
-      email: request.email.trim(),
-      role: request.role,
-      joining_date: request.joining_date,
-      address: request.address,
-      status: "Active"
-    };
-
-    const { error: insertError } = await supabase
-      .from("staff")
-      .insert([staffData]);
-
-    if (insertError) throw insertError;
-  }
+if(!data?.length){
+emptyRow(tbody,"No customers found.",5);
+return;
 }
 
-// Update the application only after the staff record is handled.
-const { data: updated, error: requestError } = await supabase
-  .from("staff_registrations")
-  .update({ status: decision })
-  .eq("registration_id", request.registration_id)
-  .eq("status", "Pending")
-  .select("registration_id");
+tbody.replaceChildren();
 
-if (requestError) throw requestError;
-
-if (!updated || updated.length === 0) {
-  throw new Error(
-    "Application status was not updated. Refresh the requests and check the application status."
-  );
+for(const c of data){
+const tr=document.createElement("tr");
+cell(tr,c.customer_id);
+cell(tr,c.full_name);
+cell(tr,c.email);
+cell(tr,c.phone);
+cell(tr,dateText(c.created_at));
+tbody.appendChild(tr);
+}
 }
 
-message(
-  "requestsMessage",
-  "Request " + decision.toLowerCase() + " successfully."
+async function loadEvents(){
+message("dashboardMessage","Loading events...");
+
+const {data,error}=await supabase.from("events")
+.select("event_id,event_name,event_date,venue,budget,status,created_at,customers(full_name,email,phone)")
+.order("created_at",{ascending:false});
+
+if(error){
+message("dashboardMessage","Unable to load events: "+error.message);
+emptyRow($("eventRows"),"Unable to load events.",9);
+return;
+}
+
+const events=data||[];
+
+$("totalEvents").textContent=events.length;
+$("newEvents").textContent=events.filter(e=>e.status==="New").length;
+$("confirmedEvents").textContent=events.filter(e=>e.status==="Confirmed").length;
+$("completedEvents").textContent=events.filter(e=>e.status==="Completed").length;
+$("cancelledEvents").textContent=events.filter(e=>e.status==="Cancelled").length;
+
+$("totalBudget").textContent=money(
+events.filter(e=>e.status!=="Cancelled")
+.reduce((sum,e)=>sum+Number(e.budget||0),0)
 );
 
-await Promise.all([loadRequests(), loadStaff()]);
+const tbody=$("eventRows");
+tbody.replaceChildren();
 
-} catch (err) {
-console.error("Staff request review failed:", err);
+if(!events.length)emptyRow(tbody,"No event registrations found.",9);
 
-message(
-  "requestsMessage",
-  "Unable to " + actionText + " request: " + err.message
-);
+for(const e of events){
+const tr=document.createElement("tr");
 
-}
-}
-async function loadStaff() {
-  const tbody = $("staffRows");
+cell(tr,e.event_id);
+cell(tr,e.customers?.full_name);
+cell(tr,[e.customers?.email,e.customers?.phone].filter(Boolean).join(" / "));
+cell(tr,e.event_name);
+cell(tr,dateText(e.event_date));
+cell(tr,e.venue);
+cell(tr,money(e.budget));
 
-  const { data, error } = await supabase.from("staff")
-    .select("staff_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
-    .order("created_at", { ascending: false });
+const statusTd=document.createElement("td");
+const select=document.createElement("select");
 
-  if (error) {
-    emptyRow(tbody, "Unable to load staff: " + error.message, 10);
-    return;
-  }
-
-  if (!data?.length) {
-    emptyRow(tbody, "No staff records found.", 10);
-    return;
-  }
-
-  tbody.replaceChildren();
-
-  for (const s of data) {
-    const tr = document.createElement("tr");
-    cell(tr, s.staff_id);
-    cell(tr, s.full_name);
-    cell(tr, s.mobile);
-    cell(tr, s.whatsapp);
-    cell(tr, s.email);
-    cell(tr, s.role);
-    cell(tr, dateText(s.joining_date));
-    cell(tr, s.address);
-    cell(tr, s.status);
-
-    const td = document.createElement("td");
-
-    td.appendChild(button(
-      String(s.status).toLowerCase() === "active" ? "Set Inactive" : "Set Active",
-      "secondary",
-      () => changeStaffStatus(s)
-    ));
-
-    td.appendChild(button("Delete", "danger", () => deleteStaff(s)));
-
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-  }
-}
-
-async function changeStaffStatus(s) {
-  const status = String(s.status).toLowerCase() === "active" ? "Inactive" : "Active";
-
-  if (!confirm("Change " + s.full_name + "'s status to " + status + "?")) return;
-
-  const { error } = await supabase.from("staff")
-    .update({ status }).eq("staff_id", s.staff_id);
-
-  if (error) {
-    alert("Unable to change status: " + error.message);
-    return;
-  }
-
-  await loadStaff();
-}
-
-async function deleteStaff(s) {
-  if (!confirm("Permanently delete " + s.full_name + "? This cannot be undone.")) return;
-
-  const { error } = await supabase.from("staff")
-    .delete().eq("staff_id", s.staff_id);
-
-  if (error) {
-    alert("Unable to delete staff: " + error.message);
-    return;
-  }
-
-  await loadStaff();
-}
-
-async function showDashboard(user) {
-  const admin = await isAdmin(user.id);
-
-  if (!admin) {
-    await supabase.auth.signOut();
-    $("dashboard").classList.add("hidden");
-    $("loginPanel").classList.remove("hidden");
-    message("loginMessage", "This account is not registered as an Ocean Production admin.");
-    return;
-  }
-
-  $("loginPanel").classList.add("hidden");
-  $("dashboard").classList.remove("hidden");
-  $("welcome").textContent = "Signed in as " + (admin.full_name || admin.email || "Administrator");
-
-  await Promise.allSettled([
-    loadEvents(),
-    loadCustomers(),
-    loadRequests(),
-    loadStaff()
-  ]);
-}
-
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  $("loginButton").disabled = true;
-  message("loginMessage", "Signing in...");
-
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: $("email").value.trim(),
-      password: $("password").value
-    });
-
-    if (error) throw error;
-    await showDashboard(data.user);
-  } catch (err) {
-    message("loginMessage", "Login failed: " + err.message);
-  } finally {
-    $("loginButton").disabled = false;
-  }
+["New","Confirmed","Completed","Cancelled"].forEach(s=>{
+const opt=document.createElement("option");
+opt.value=s;
+opt.textContent=s;
+select.appendChild(opt);
 });
 
-$("refreshButton").addEventListener("click", async () => {
-  try {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) throw error;
-    if (!data.user) throw new Error("Please sign in again.");
-    await showDashboard(data.user);
-  } catch (err) {
-    message("dashboardMessage", "Refresh failed: " + err.message);
-  }
+select.value=e.status||"New";
+statusTd.appendChild(select);
+tr.appendChild(statusTd);
+
+const actionTd=document.createElement("td");
+
+actionTd.appendChild(button("Save","",async ev=>{
+const saveButton=ev.currentTarget;
+saveButton.disabled=true;
+
+try{
+const {error:updateError}=await supabase.from("events")
+.update({status:select.value}).eq("event_id",e.event_id);
+
+if(updateError)throw updateError;
+
+await loadEvents();
+message("dashboardMessage","Event status updated.");
+}catch(err){
+message("dashboardMessage","Unable to update event: "+err.message);
+}finally{
+saveButton.disabled=false;
+}
+}));
+
+tr.appendChild(actionTd);
+tbody.appendChild(tr);
+}
+
+message("dashboardMessage","Dashboard data loaded.");
+}
+
+async function loadRequests(){
+const tbody=$("requestRows");
+message("requestsMessage","Loading staff registration requests...");
+
+const {data,error}=await supabase.from("staff_registrations")
+.select("registration_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
+.order("created_at",{ascending:false});
+
+if(error){
+emptyRow(tbody,"Unable to load requests: "+error.message,11);
+message("requestsMessage","Unable to load requests: "+error.message);
+return;
+}
+
+if(!data?.length){
+emptyRow(tbody,"No staff registration requests found.",11);
+message("requestsMessage","Requests loaded.");
+return;
+}
+
+tbody.replaceChildren();
+
+for(const r of data){
+const tr=document.createElement("tr");
+
+cell(tr,r.registration_id);
+cell(tr,r.full_name);
+cell(tr,r.mobile);
+cell(tr,r.whatsapp);
+cell(tr,r.email);
+cell(tr,r.role);
+cell(tr,dateText(r.joining_date));
+cell(tr,r.address);
+cell(tr,r.status);
+cell(tr,dateText(r.created_at));
+
+const td=document.createElement("td");
+
+if(r.status==="Pending"){
+td.appendChild(button("Approve","success",()=>reviewRequest(r,"Approved")));
+td.appendChild(button("Reject","danger",()=>reviewRequest(r,"Rejected")));
+}else{
+td.textContent="Reviewed";
+}
+
+tr.appendChild(td);
+tbody.appendChild(tr);
+}
+
+message("requestsMessage","Requests loaded.");
+}
+
+async function reviewRequest(request,decision){
+const actionText=decision==="Approved"?"approve":"reject";
+
+if(!confirm("Are you sure you want to "+actionText+" "+request.full_name+"?"))return;
+
+message("requestsMessage","Processing request...");
+
+try{
+if(decision==="Approved"){
+const email=(request.email||"").trim();
+
+if(!email)throw new Error("Application email is missing.");
+
+const {data:existingStaff,error:lookupError}=await supabase.from("staff")
+.select("staff_id,full_name,email,status")
+.ilike("email",email).limit(1);
+
+if(lookupError)throw lookupError;
+
+if(!existingStaff?.length){
+const staffData={
+full_name:request.full_name,
+mobile:request.mobile,
+whatsapp:request.whatsapp,
+email,
+role:request.role,
+joining_date:request.joining_date,
+address:request.address,
+status:"Active"
+};
+
+const {error:insertError}=await supabase.from("staff").insert([staffData]);
+if(insertError)throw insertError;
+}
+}
+
+const {data:updated,error:requestError}=await supabase.from("staff_registrations")
+.update({status:decision})
+.eq("registration_id",request.registration_id)
+.eq("status","Pending")
+.select("registration_id");
+
+if(requestError)throw requestError;
+
+if(!updated?.length){
+throw new Error("Application status was not updated. Refresh requests and verify its current status.");
+}
+
+message("requestsMessage","Request "+decision.toLowerCase()+" successfully.");
+
+await Promise.all([loadRequests(),loadStaff()]);
+
+}catch(err){
+console.error("Staff request review failed:",err);
+message("requestsMessage","Unable to "+actionText+" request: "+err.message);
+}
+}
+
+async function loadStaff(){
+message("staffMessage","Loading staff records...");
+
+const {data,error}=await supabase.from("staff")
+.select("staff_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
+.order("created_at",{ascending:false});
+
+if(error){
+staffCache=[];
+emptyRow($("staffRows"),"Unable to load staff: "+error.message,10);
+message("staffMessage","Check staff permissions: "+error.message);
+return;
+}
+
+staffCache=data||[];
+
+$("staffTotal").textContent=staffCache.length;
+$("staffActive").textContent=staffCache.filter(s=>String(s.status||"").toLowerCase()==="active").length;
+$("staffInactive").textContent=staffCache.filter(s=>String(s.status||"").toLowerCase()==="inactive").length;
+
+renderStaff();
+message("staffMessage","Staff records loaded.");
+}
+
+function renderStaff(){
+const search=$("staffSearch").value.trim().toLowerCase();
+const status=$("staffStatusFilter").value;
+
+const filtered=staffCache.filter(s=>{
+const matchesSearch=[
+s.full_name,s.mobile,s.whatsapp,s.email,s.role
+].some(v=>String(v||"").toLowerCase().includes(search));
+
+const matchesStatus=status==="All"||
+String(s.status||"").toLowerCase()===status.toLowerCase();
+
+return matchesSearch&&matchesStatus;
 });
 
-$("refreshRequestsButton").addEventListener("click", loadRequests);
+const tbody=$("staffRows");
+tbody.replaceChildren();
 
-$("logoutButton").addEventListener("click", async () => {
-  const { error } = await supabase.auth.signOut();
+if(!filtered.length){
+emptyRow(tbody,"No matching staff found.",10);
+return;
+}
 
-  if (error) {
-    message("dashboardMessage", "Sign out failed: " + error.message);
-    return;
-  }
+for(const s of filtered){
+const tr=document.createElement("tr");
 
-  $("dashboard").classList.add("hidden");
-  $("loginPanel").classList.remove("hidden");
-  $("loginForm").reset();
-  message("loginMessage", "You have signed out.");
+cell(tr,s.staff_id);
+cell(tr,s.full_name);
+cell(tr,s.mobile);
+cell(tr,s.whatsapp);
+cell(tr,s.email);
+cell(tr,s.role);
+cell(tr,dateText(s.joining_date));
+cell(tr,s.address);
+cell(tr,s.status);
+
+const td=document.createElement("td");
+
+td.appendChild(button(
+String(s.status||"").toLowerCase()==="active"?"Set Inactive":"Set Active",
+"secondary",
+()=>changeStaffStatus(s)
+));
+
+td.appendChild(button("Edit","",()=>editStaff(s)));
+td.appendChild(button("Delete","danger",()=>deleteStaff(s)));
+
+tr.appendChild(td);
+tbody.appendChild(tr);
+}
+}
+
+async function editStaff(s){
+const full_name=prompt("Staff Name:",s.full_name||"");
+if(full_name===null)return;
+
+const mobile=prompt("Mobile Number:",s.mobile||"");
+if(mobile===null)return;
+
+const whatsapp=prompt("WhatsApp Number:",s.whatsapp||"");
+if(whatsapp===null)return;
+
+const email=prompt("Email:",s.email||"");
+if(email===null)return;
+
+const role=prompt("Staff Role:",s.role||"");
+if(role===null)return;
+
+const joining_date=prompt("Joining Date (YYYY-MM-DD):",s.joining_date||"");
+if(joining_date===null)return;
+
+const address=prompt("Address:",s.address||"");
+if(address===null)return;
+
+if(!full_name.trim()||!mobile.trim()){
+alert("Name and mobile number are required.");
+return;
+}
+
+if(email.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){
+alert("Please enter a valid email address.");
+return;
+}
+
+if(joining_date.trim()&&!/^\d{4}-\d{2}-\d{2}$/.test(joining_date.trim())){
+alert("Enter joining date in YYYY-MM-DD format.");
+return;
+}
+
+message("staffMessage","Saving staff details...");
+
+const updates={
+full_name:full_name.trim(),
+mobile:mobile.trim(),
+whatsapp:whatsapp.trim()||null,
+email:email.trim()||null,
+role:role.trim(),
+joining_date:joining_date.trim()||null,
+address:address.trim()||null
+};
+
+const {error}=await supabase.from("staff")
+.update(updates).eq("staff_id",s.staff_id);
+
+if(error){
+message("staffMessage","Update failed: "+error.message);
+alert("Update failed: "+error.message);
+return;
+}
+
+message("staffMessage","Staff details updated successfully.");
+await loadStaff();
+}
+
+async function changeStaffStatus(s){
+const current=String(s.status||"").toLowerCase();
+const status=current==="active"?"Inactive":"Active";
+
+if(!confirm("Change "+s.full_name+"'s status to "+status+"?"))return;
+
+message("staffMessage","Updating staff status...");
+
+const {data,error}=await supabase.from("staff")
+.update({status})
+.eq("staff_id",s.staff_id)
+.select("staff_id,status");
+
+if(error){
+message("staffMessage","Unable to change status: "+error.message);
+return;
+}
+
+if(!data?.length){
+message("staffMessage","No staff row updated. Check admin UPDATE permission.");
+return;
+}
+
+await loadStaff();
+message("staffMessage",s.full_name+"'s status is now "+status+".");
+}
+
+async function deleteStaff(s){
+if(!confirm("Permanently delete "+s.full_name+"? This cannot be undone."))return;
+
+message("staffMessage","Deleting staff record...");
+
+const {data,error}=await supabase.from("staff")
+.delete()
+.eq("staff_id",s.staff_id)
+.select("staff_id");
+
+if(error){
+message("staffMessage","Unable to delete staff: "+error.message);
+return;
+}
+
+if(!data?.length){
+message("staffMessage","No staff row deleted. Check admin DELETE permission.");
+return;
+}
+
+await loadStaff();
+message("staffMessage","Staff record deleted.");
+}
+
+async function showDashboard(user){
+const admin=await isAdmin(user.id);
+
+if(!admin){
+await supabase.auth.signOut();
+$("dashboard").classList.add("hidden");
+$("loginPanel").classList.remove("hidden");
+message("loginMessage","This account is not registered as an Ocean Production admin.");
+return;
+}
+
+$("loginPanel").classList.add("hidden");
+$("dashboard").classList.remove("hidden");
+
+$("welcome").textContent="Signed in as "+(admin.full_name||admin.email||"Administrator");
+
+await Promise.allSettled([
+loadEvents(),
+loadCustomers(),
+loadRequests(),
+loadStaff()
+]);
+}
+
+$("loginForm").addEventListener("submit",async event=>{
+event.preventDefault();
+
+$("loginButton").disabled=true;
+message("loginMessage","Signing in...");
+
+try{
+const {data,error}=await supabase.auth.signInWithPassword({
+email:$("email").value.trim(),
+password:$("password").value
 });
 
-async function restoreSession() {
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (data.session?.user) await showDashboard(data.session.user);
-  } catch (err) {
-    message("loginMessage", "Unable to restore session: " + err.message);
-  }
+if(error)throw error;
+await showDashboard(data.user);
+
+}catch(err){
+message("loginMessage","Login failed: "+err.message);
+}finally{
+$("loginButton").disabled=false;
+}
+});
+
+$("refreshButton").addEventListener("click",async()=>{
+try{
+const {data,error}=await supabase.auth.getUser();
+if(error)throw error;
+if(!data.user)throw new Error("Please sign in again.");
+await showDashboard(data.user);
+}catch(err){
+message("dashboardMessage","Refresh failed: "+err.message);
+}
+});
+
+$("refreshRequestsButton").addEventListener("click",loadRequests);
+
+$("staffSearch").addEventListener("input",renderStaff);
+$("staffStatusFilter").addEventListener("change",renderStaff);
+
+$("refreshStaffButton").addEventListener("click",async()=>{
+$("staffSearch").value="";
+$("staffStatusFilter").value="All";
+await loadStaff();
+});
+
+$("logoutButton").addEventListener("click",async()=>{
+const {error}=await supabase.auth.signOut();
+
+if(error){
+message("dashboardMessage","Sign out failed: "+error.message);
+return;
+}
+
+$("dashboard").classList.add("hidden");
+$("loginPanel").classList.remove("hidden");
+$("loginForm").reset();
+message("loginMessage","You have signed out.");
+});
+
+async function restoreSession(){
+try{
+const {data,error}=await supabase.auth.getSession();
+if(error)throw error;
+if(data.session?.user)await showDashboard(data.session.user);
+}catch(err){
+message("loginMessage","Unable to restore session: "+err.message);
+}
 }
 
 restoreSession();
