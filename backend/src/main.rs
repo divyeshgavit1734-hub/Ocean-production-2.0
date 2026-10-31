@@ -5,11 +5,13 @@ use axum::{
 };
 use serde_json::{json, Value};
 use tower_http::cors::CorsLayer;
+use std::env;
 
-async fn home() -> Json<Value> {
+async fn health() -> Json<Value> {
     Json(json!({
         "success": true,
-        "message": "Ocean Production Rust Backend is running!",
+        "business": "OCEAN PRODUCTION",
+        "message": "Rust Backend is running!",
         "version": "1.0.0"
     }))
 }
@@ -17,15 +19,20 @@ async fn home() -> Json<Value> {
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/", get(home))
-        .route("/api/health", get(home))
+        .route("/", get(health))
+        .route("/api/health", get(health))
         .layer(CorsLayer::permissive());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "3000".to_string());
+
+    let address = format!("0.0.0.0:{}", port);
+
+    let listener = tokio::net::TcpListener::bind(&address)
         .await
         .expect("Failed to start server");
 
-    println!("Ocean Production Backend started!");
+    println!("Ocean Production Backend running on {}", address);
 
     axum::serve(listener, app)
         .await
