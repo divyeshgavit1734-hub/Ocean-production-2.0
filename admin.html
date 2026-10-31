@@ -608,68 +608,140 @@ return `OP-INV-${d.getFullYear()}-${String(Date.now()).slice(-6)}`;
 
 /* SAVE QUOTATION */
 
-async function saveQuotation(){
-try{
-let items=getQItems();
+async function saveQuotation() {
+    try {
+        const items = getQItems();
 
-if(!$("qCustomer").value.trim()||!digits($("qPhone").value))
-throw Error("Customer name and WhatsApp number are required.");
+        const customerName = $("qCustomer").value.trim();
+        const customerPhone = digits($("qPhone").value);
 
-if(!items.length)throw Error("Add at least one valid service item.");
+        if (!customerName || !customerPhone) {
+            throw Error("Customer name and WhatsApp number are required.");
+        }
 
-let t=totals(items);
-let id=$("quotationId").value;
+        if (!items.length) {
+            throw Error("Add at least one valid service item.");
+        }
 
-let record={
-quotation_no:id?quotationCache.find(x=>String(x.quotation_id)===id)?.quotation_no:quotationNumber(),
-customer_name:$("qCustomer").value.trim(),
-customer_phone:digits($("qPhone").value),
-customer_email:$("qEmail").value.trim()||null,
-event_name:$("qEvent").value.trim()||null,
-event_date:$("qDate").value||null,
-venue:$("qVenue").value.trim()||null,
-valid_until:$("qValid").value||null,
-subtotal:t.subtotal,
-discount:t.discount,
-gst_rate:Number($("qGst").value)||0,
-gst_amount:t.gst,
-total_amount:t.total,
-notes:$("qNotes").value.trim()||null,
-status:"Pending"
-};
+        // Calculate subtotal and convert fixed discount to percentage
+        const subtotal = items.reduce(
+            (sum, item) => sum + item.quantity * item.unit_price,
+            0
+        );
 
-let result;
+        const discountAmount = Number($("qDiscount").value) || 0;
+        const gstPercent = Number($("qGst").value) || 0;
 
-if(id){
-result=await supabase.from("quotations").update(record)
-.eq("quotation_id",id).select("quotation_id").single();
-}else{
-result=await supabase.from("quotations").insert(record)
-.select("quotation_id").single();
-}
+        if (discountAmount < 0 || discountAmount > subtotal) {
+            throw Error("Discount cannot exceed subtotal.");
+        }
 
-if(result.error)throw result.error;
+        const discountPercent = subtotal > 0
+            ? (discountAmount / subtotal) * 100
+            : 0;
 
-let qid=result.data.quotation_id;
+        // Send quotation to Rust backend
+        if (typeof window.calculateOceanQuotation !== "function") {
+            throw Error("Rust backend configuration is not loaded.");
+        }
 
-let del=await supabase.from("quotation_items").delete().eq("quotation_id",qid);
-if(del.error)throw del.error;
+        msg("quotationMessage", "Calculating quotation using Rust...");
 
-let ins=await supabase.from("quotation_items").insert(items.map(x=>({
-...x,
-quotation_id:qid,
-line_total:x.quantity*x.unit_price
-})));
+        const calculation = await window.calculateOceanQuotation({
+            customer_name: customerName,
+            items: items.map(item => ({
+                name: item.description,
+                quantity: item.quantity,
+                unit_price: item.unit_price
+            })),
+            discount_percent: discountPercent,
+            gst_percent: gstPercent
+        });
 
-if(ins.error)throw ins.error;
+        if (!calculation.success) {
+            throw Error("Rust quotation calculation failed.");
+        }
 
-msg("quotationMessage","Quotation saved. Generate PDF and share it using WhatsApp from the quotation history.");
-resetQ();
-await loadQuotations();
+        const id = $("quotationId").value;
 
-}catch(e){
-msg("quotationMessage","Save failed: "+e.message);
-}
+        const record = {
+            quotation_no: id
+                ? quotationCache.find(
+                    x => String(x.quotation_id) === id
+                  )?.quotation_no
+                : quotationNumber(),
+
+            customer_name: customerName,
+            customer_phone: customerPhone,
+            customer_email: $("qEmail").value.trim() || null,
+            event_name: $("qEvent").value.trim() || null,
+            event_date: $("qDate").value || null,
+            venue: $("qVenue").value.trim() || null,
+            valid_until: $("qValid").value || null,
+
+            subtotal: calculation.subtotal,
+            discount: calculation.discount_amount,
+            gst_rate: gstPercent,
+            gst_amount: calculation.gst_amount,
+            total_amount: calculation.grand_total,
+
+            notes: $("qNotes").value.trim() || null,
+            status: "Pending"
+        };
+
+        // Save calculated quotation in Supabase
+        let result;
+
+        if (id) {
+            result = await supabase
+                .from("quotations")
+                .update(record)
+                .eq("quotation_id", id)
+                .select("quotation_id")
+                .single();
+        } else {
+            result = await supabase
+                .from("quotations")
+                .insert(record)
+                .select("quotation_id")
+                .single();
+        }
+
+        if (result.error) throw result.error;
+
+        const qid = result.data.quotation_id;
+
+        // Save quotation items
+        const del = await supabase
+            .from("quotation_items")
+            .delete()
+            .eq("quotation_id", qid);
+
+        if (del.error) throw del.error;
+
+        const ins = await supabase
+            .from("quotation_items")
+            .insert(
+                items.map(item => ({
+                    ...item,
+                    quotation_id: qid,
+                    line_total: item.quantity * item.unit_price
+                }))
+            );
+
+        if (ins.error) throw ins.error;
+
+        msg(
+            "quotationMessage",
+            `Quotation saved successfully!\nCalculated by Rust.\nGrand Total: ₹${calculation.grand_total}`
+        );
+
+        resetQ();
+        await loadQuotations();
+
+    } catch (error) {
+        msg("quotationMessage", "Save failed: " + error.message);
+    }
 }
 
 /* PDF GENERATION */
