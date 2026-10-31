@@ -1200,6 +1200,17 @@ if(data.session?.user)await showDashboard(data.session.user);
 }catch(e){
 msg("loginMessage",e.message);
 }
+</script><!-- Ocean Production Rust Backend -->
+<script src="backend/config.js"></script>
+
+<script>
+    checkOceanBackend().then(data => {
+        if (data && data.success) {
+            console.log("🟢 Ocean Production Backend Connected");
+        } else {
+            console.log("🔴 Backend not connected");
+        }
+    });
 </script>
 </body>
 </html>
