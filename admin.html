@@ -2,177 +2,276 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ocean Production | Admin Dashboard</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ocean Production | Admin</title>
 <style>
+:root{--bg:#08111f;--panel:#111d30;--line:#293850;--gold:#ff9d00;--text:#f5f7fb;--muted:#bdc8d8}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#08111f;color:#f5f7fb}
-header{padding:20px;background:#111d30;border-bottom:1px solid #293850}
-header h1{color:#ff9d00;margin:0 0 6px}
-header p,.note{color:#bdc8d8}
-main{max-width:1300px;margin:auto;padding:18px}
-.panel,.stat{background:#111d30;border:1px solid #293850;border-radius:12px;padding:18px;margin-bottom:18px}
-input,select,textarea,button{width:100%;padding:11px;margin:6px 0;border-radius:7px;font-size:14px}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}
+header{padding:18px 22px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1,h2,h3{margin:0 0 12px}
+h1{color:var(--gold)}
+h2{color:#ffc15c;font-size:20px}
+header p,.note,.muted{color:var(--muted)}
+main{max-width:1450px;margin:auto;padding:16px}
+.panel,.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin-bottom:16px}
+.stat span{display:block;color:var(--muted);margin-bottom:8px}
+.stat strong{font-size:22px;color:#ffb02e;overflow-wrap:anywhere}
+input,select,textarea,button{width:100%;padding:10px;margin:5px 0;border-radius:7px;font:inherit}
 input,select,textarea{background:#081525;color:white;border:1px solid #354760}
-button{background:#ff9d00;color:#111;font-weight:bold;border:0;cursor:pointer}
+textarea{min-height:75px;resize:vertical}
+button{background:var(--gold);color:#111;font-weight:bold;border:0;cursor:pointer}
 button:disabled{opacity:.6;cursor:wait}
 .secondary{background:#253650;color:white}
 .danger{background:#d94343;color:white}
 .success{background:#218b58;color:white}
 .hidden{display:none!important}
-.note{font-size:14px;line-height:1.5}
-.message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
-.stat span{display:block;color:#bdc8d8;margin-bottom:8px}
-.stat strong{font-size:23px;color:#ffb02e;overflow-wrap:anywhere}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:750px}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #293850;vertical-align:top}
-th{color:#ffb02e}
-td button{min-width:85px;width:auto;margin:3px}
-.staff-tools{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center}
-.staff-tools input,.staff-tools select,.staff-tools button{margin:6px 0}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}
+.tabs button{width:auto;padding:10px 14px}
+.tabs button.active{outline:2px solid #ffd17a}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:#ffbd50}
+td button{width:auto;min-width:75px;margin:2px;padding:8px}
+.message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;min-height:18px}
+.note{line-height:1.5;font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.toolbar>*{flex:1;min-width:140px}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap}
+.form-actions button{flex:1}
+.item-row{display:grid;grid-template-columns:2fr .7fr .9fr .9fr auto;gap:7px;align-items:center}
+.item-row button{width:auto}
 @media(max-width:650px){
-main{padding:10px}
-.panel{padding:13px}
-header{padding:16px}
-.staff-tools{grid-template-columns:1fr}
+main{padding:9px}
+.panel{padding:12px}
+header{padding:14px}
+.item-row{grid-template-columns:1fr 1fr}
+.item-row input:first-child{grid-column:1/-1}
 }
 </style>
 </head>
-
 <body>
+
 <header>
+<div>
 <h1>OCEAN PRODUCTION</h1>
-<p>Administration Dashboard</p>
+<p>Admin • Events • Staff • Quotations • Invoices</p>
+</div>
+<div id="headerUser" class="muted"></div>
 </header>
 
 <main>
 
 <section id="loginPanel" class="panel">
-<h2>Admin Login</h2>
-<p class="note">Sign in with your authorized administrator account.</p>
+<h2>Administrator Login</h2>
+<p class="note">Sign in using an authorized Ocean Production admin account.</p>
 <form id="loginForm">
-<label for="email">Admin Email</label>
-<input id="email" type="email" autocomplete="username" required>
-<label for="password">Password</label>
-<input id="password" type="password" autocomplete="current-password" required>
-<button id="loginButton" type="submit">Sign In</button>
+<div class="grid">
+<label>Email<input id="email" type="email" autocomplete="username" required></label>
+<label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+</div>
+<button id="loginButton">Sign In</button>
 </form>
-<p id="loginMessage" class="message" role="status"></p>
+<p id="loginMessage" class="message"></p>
 </section>
 
 <section id="dashboard" class="hidden">
 
-<section class="panel">
-<h2>Dashboard Overview</h2>
-<p id="welcome"></p>
-<button id="refreshButton">Refresh All Data</button>
-<button id="logoutButton" class="secondary">Sign Out</button>
-<p id="dashboardMessage" class="message" role="status"></p>
-</section>
+<div class="panel">
+<div class="toolbar">
+<button id="refreshAll">Refresh All Data</button>
+<button id="logout" class="secondary">Sign Out</button>
+</div>
+<p id="welcome" class="muted"></p>
+<p id="globalMessage" class="message"></p>
+</div>
 
+<nav class="tabs" id="tabs">
+<button class="active" data-view="overview">Overview</button>
+<button data-view="events">Events</button>
+<button data-view="customers">Customers</button>
+<button data-view="requests">Staff Requests</button>
+<button data-view="staff">Staff</button>
+<button data-view="quotations">Quotations</button>
+<button data-view="invoices">Invoices</button>
+</nav>
+
+<section id="view-overview" class="view">
 <div class="stats">
 <div class="stat"><span>Total Events</span><strong id="totalEvents">—</strong></div>
 <div class="stat"><span>New Requests</span><strong id="newEvents">—</strong></div>
 <div class="stat"><span>Confirmed</span><strong id="confirmedEvents">—</strong></div>
 <div class="stat"><span>Completed</span><strong id="completedEvents">—</strong></div>
-<div class="stat"><span>Cancelled</span><strong id="cancelledEvents">—</strong></div>
-<div class="stat"><span>Total Listed Budget</span><strong id="totalBudget">—</strong></div>
+<div class="stat"><span>Staff</span><strong id="staffCount">—</strong></div>
+<div class="stat"><span>Quotations</span><strong id="quotationCount">—</strong></div>
+<div class="stat"><span>Invoices</span><strong id="invoiceCount">—</strong></div>
 </div>
+<div class="panel">
+<h2>Business Workflow</h2>
+<p class="note">Create a quotation → generate its PDF → share the PDF link through WhatsApp → mark accepted → convert to invoice → record payments.</p>
+</div>
+</section>
 
-<section class="panel">
+<section id="view-events" class="view hidden">
+<div class="panel">
 <h2>Event Registrations</h2>
-<p class="note">Update an event's status and press Save.</p>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>ID</th><th>Customer</th><th>Contact</th><th>Event</th>
-<th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Action</th>
-</tr>
+<tr><th>ID</th><th>Customer</th><th>Contact</th><th>Event</th><th>Date</th><th>Venue</th><th>Budget</th><th>Status</th><th>Save</th></tr>
 </thead>
-<tbody id="eventRows">
-<tr><td colspan="9">Sign in to load events.</td></tr>
-</tbody>
+<tbody id="eventRows"></tbody>
 </table>
+</div>
 </div>
 </section>
 
-<section class="panel">
-<h2>Customer Management</h2>
+<section id="view-customers" class="view hidden">
+<div class="panel">
+<h2>Customers</h2>
 <div class="table-wrap">
 <table>
-<thead>
-<tr>
-<th>Customer ID</th><th>Full Name</th><th>Email</th>
-<th>Phone</th><th>Registered On</th>
-</tr>
-</thead>
-<tbody id="customerRows">
-<tr><td colspan="5">Customer records will appear here.</td></tr>
-</tbody>
+<thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr></thead>
+<tbody id="customerRows"></tbody>
 </table>
+</div>
 </div>
 </section>
 
-<section class="panel">
+<section id="view-requests" class="view hidden">
+<div class="panel">
 <h2>Staff Registration Requests</h2>
-<p class="note">Review applications. Approval creates a staff record; rejection does not create one.</p>
-<button id="refreshRequestsButton" class="secondary">Refresh Requests</button>
-<p id="requestsMessage" class="message" role="status"></p>
+<button id="refreshRequests" class="secondary">Refresh Requests</button>
+<p id="requestsMessage" class="message"></p>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>Request ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-<th>Email</th><th>Requested Role</th><th>Joining Date</th>
-<th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th>
-</tr>
+<tr><th>ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th><th>Email</th><th>Role</th><th>Joining</th><th>Address</th><th>Status</th><th>Submitted</th><th>Actions</th></tr>
 </thead>
-<tbody id="requestRows">
-<tr><td colspan="11">No requests loaded.</td></tr>
-</tbody>
+<tbody id="requestRows"></tbody>
 </table>
+</div>
 </div>
 </section>
 
-<section class="panel">
+<section id="view-staff" class="view hidden">
+<div class="panel">
 <h2>Staff Management</h2>
-<p class="note">Search, edit, activate/deactivate and delete staff records.</p>
-
 <div class="stats">
 <div class="stat"><span>Total Staff</span><strong id="staffTotal">0</strong></div>
-<div class="stat"><span>Active Staff</span><strong id="staffActive">0</strong></div>
-<div class="stat"><span>Inactive Staff</span><strong id="staffInactive">0</strong></div>
+<div class="stat"><span>Active</span><strong id="staffActive">0</strong></div>
+<div class="stat"><span>Inactive</span><strong id="staffInactive">0</strong></div>
 </div>
-
-<div class="staff-tools">
-<input id="staffSearch" type="search" placeholder="Search name, mobile or email...">
-<select id="staffStatusFilter">
-<option value="All">All Staff</option>
-<option value="Active">Active</option>
-<option value="Inactive">Inactive</option>
+<div class="toolbar">
+<input id="staffSearch" placeholder="Search staff">
+<select id="staffFilter">
+<option>All</option>
+<option>Active</option>
+<option>Inactive</option>
 </select>
-<button id="refreshStaffButton" class="secondary">Refresh Staff</button>
+<button id="refreshStaff" class="secondary">Refresh Staff</button>
 </div>
-
-<p id="staffMessage" class="message" role="status"></p>
-
+<p id="staffMessage" class="message"></p>
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
-<th>Staff ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th>
-<th>Email</th><th>Role</th><th>Joining Date</th>
-<th>Address</th><th>Status</th><th>Actions</th>
-</tr>
+<tr><th>ID</th><th>Name</th><th>Mobile</th><th>WhatsApp</th><th>Email</th><th>Role</th><th>Joining</th><th>Address</th><th>Status</th><th>Actions</th></tr>
 </thead>
-<tbody id="staffRows">
-<tr><td colspan="10">Staff records will appear here.</td></tr>
-</tbody>
+<tbody id="staffRows"></tbody>
 </table>
+</div>
+</div>
+</section>
+
+<section id="view-quotations" class="view hidden">
+
+<div class="panel">
+<h2 id="quotationFormTitle">Create Quotation</h2>
+<p class="note">Create a quotation with line items. PDF is stored in the Supabase Storage bucket named <b>documents</b>; the public URL is shared through WhatsApp.</p>
+
+<input type="hidden" id="quotationId">
+
+<div class="grid">
+<label>Customer Name<input id="qCustomer" required placeholder="Customer full name"></label>
+<label>Customer WhatsApp<input id="qPhone" required placeholder="91XXXXXXXXXX"></label>
+<label>Customer Email<input id="qEmail" type="email" placeholder="Optional"></label>
+<label>Event Name<input id="qEvent" placeholder="Wedding / Corporate / Birthday"></label>
+<label>Event Date<input id="qDate" type="date"></label>
+<label>Venue<input id="qVenue" placeholder="Event venue"></label>
+<label>Valid Until<input id="qValid" type="date"></label>
+<label>GST Rate (%)<input id="qGst" type="number" min="0" max="100" step=".01" value="0"></label>
+<label>Discount (₹)<input id="qDiscount" type="number" min="0" step=".01" value="0"></label>
+</div>
+
+<h3>Quotation Items</h3>
+<div id="quotationItems"></div>
+<button type="button" id="addQItem" class="secondary">+ Add Service</button>
+
+<div class="grid">
+<label>Notes<textarea id="qNotes" placeholder="Terms, advance, travel charges, etc."></textarea></label>
+<div class="panel">
+<p>Subtotal: <b id="qSubtotal">₹0.00</b></p>
+<p>Discount: <b id="qDiscountView">₹0.00</b></p>
+<p>GST: <b id="qGstView">₹0.00</b></p>
+<h3>Grand Total: <span id="qGrand">₹0.00</span></h3>
+</div>
+</div>
+
+<div class="form-actions">
+<button id="saveQuotation">Save Quotation</button>
+<button id="resetQuotation" class="secondary">Clear Form</button>
+</div>
+<p id="quotationMessage" class="message"></p>
+</div>
+
+<div class="panel">
+<h2>Quotation History</h2>
+<div class="toolbar">
+<input id="quotationSearch" placeholder="Search quotation / customer">
+<button id="refreshQuotations" class="secondary">Refresh</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Quotation No.</th><th>Customer</th><th>Event</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody id="quotationRows"></tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="view-invoices" class="view hidden">
+<div class="panel">
+<h2>Invoice History</h2>
+<p class="note">Invoices are created from accepted quotations. Record payments to update the balance.</p>
+<div class="toolbar">
+<input id="invoiceSearch" placeholder="Search invoice / customer">
+<button id="refreshInvoices" class="secondary">Refresh</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Invoice No.</th><th>Customer</th><th>Quotation</th><th>Issue Date</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody id="invoiceRows"></tbody>
+</table>
+</div>
+</div>
+
+<div class="panel">
+<h2>Record Invoice Payment</h2>
+<div class="grid">
+<label>Invoice<select id="paymentInvoice"><option value="">Select invoice</option></select></label>
+<label>Amount (₹)<input id="paymentAmount" type="number" min=".01" step=".01"></label>
+<label>Payment Method<select id="paymentMethod"><option>UPI</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Other</option></select></label>
+<label>Reference / Note<input id="paymentReference" placeholder="Transaction ID or note"></label>
+</div>
+<button id="recordPayment">Save Payment</button>
+<p id="paymentMessage" class="message"></p>
 </div>
 </section>
 
@@ -181,569 +280,926 @@ header{padding:16px}
 
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import {jsPDF} from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
 
 const SUPABASE_URL="https://hsdgxktuutisvrsaieeq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_Tw6uv77lblkcb9LHaSlvEQ_5sTCDFD1";
 const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
 const $=id=>document.getElementById(id);
-let staffCache=[];
+let staffCache=[],quotationCache=[],invoiceCache=[],customerCache=[],eventCache=[];
 
-function message(id,text){
-$(id).textContent=text;
+const money=n=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR"}).format(Number(n||0));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const msg=(id,t)=>$(id).textContent=t;
+const dateText=v=>v?new Date(v.length===10?v+"T00:00:00":v).toLocaleDateString("en-IN"):"—";
+
+function td(tr,v){
+let x=document.createElement("td");
+x.textContent=v??"—";
+tr.appendChild(x);
+return x;
 }
 
-function money(value){
-return new Intl.NumberFormat("en-IN",{
-style:"currency",
-currency:"INR",
-maximumFractionDigits:2
-}).format(Number(value||0));
+function empty(id,text,span){
+$(id).innerHTML=`<tr><td colspan="${span}">${esc(text)}</td></tr>`;
 }
 
-function cell(row,value){
-const td=document.createElement("td");
-td.textContent=value===null||value===undefined||value===""?"—":String(value);
-row.appendChild(td);
-return td;
-}
-
-function emptyRow(tbody,text,colspan){
-tbody.replaceChildren();
-const tr=document.createElement("tr");
-const td=cell(tr,text);
-td.colSpan=colspan;
-tbody.appendChild(tr);
-}
-
-function button(label,className,handler){
-const b=document.createElement("button");
+function btn(label,cls,fn){
+let b=document.createElement("button");
 b.type="button";
 b.textContent=label;
-if(className)b.className=className;
-b.addEventListener("click",handler);
+if(cls)b.className=cls;
+b.onclick=fn;
 return b;
 }
 
-function dateText(value){
-if(!value)return "—";
-const d=new Date(value.length===10?value+"T00:00:00":value);
-return Number.isNaN(d.getTime())?value:d.toLocaleDateString("en-IN");
-}
+function digits(v){return String(v||"").replace(/\D/g,"")}
 
-async function isAdmin(userId){
-const {data,error}=await supabase.from("admins")
+async function adminFor(uid){
+let {data,error}=await supabase.from("admins")
 .select("admin_id,full_name,email")
-.eq("auth_user_id",userId).maybeSingle();
+.eq("auth_user_id",uid).maybeSingle();
 if(error)throw error;
 return data;
 }
 
+function switchView(name){
+document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+$("view-"+name).classList.remove("hidden");
+document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+}
+
+$("tabs").addEventListener("click",e=>{
+let b=e.target.closest("button[data-view]");
+if(b)switchView(b.dataset.view);
+});
+
 async function loadCustomers(){
-const tbody=$("customerRows");
-const {data,error}=await supabase.from("customers")
+let {data,error}=await supabase.from("customers")
 .select("customer_id,full_name,email,phone,created_at")
 .order("created_at",{ascending:false});
 
-if(error){
-emptyRow(tbody,"Unable to load customers: "+error.message,5);
-return;
-}
+if(error){empty("customerRows",error.message,5);return}
 
-if(!data?.length){
-emptyRow(tbody,"No customers found.",5);
-return;
-}
+customerCache=data||[];
+let body=$("customerRows");
+body.replaceChildren();
 
-tbody.replaceChildren();
+if(!customerCache.length){empty("customerRows","No customers found",5);return}
 
-for(const c of data){
-const tr=document.createElement("tr");
-cell(tr,c.customer_id);
-cell(tr,c.full_name);
-cell(tr,c.email);
-cell(tr,c.phone);
-cell(tr,dateText(c.created_at));
-tbody.appendChild(tr);
-}
+customerCache.forEach(c=>{
+let r=document.createElement("tr");
+[c.customer_id,c.full_name,c.email,c.phone,dateText(c.created_at)].forEach(v=>td(r,v));
+body.append(r);
+});
 }
 
 async function loadEvents(){
-message("dashboardMessage","Loading events...");
-
-const {data,error}=await supabase.from("events")
+let {data,error}=await supabase.from("events")
 .select("event_id,event_name,event_date,venue,budget,status,created_at,customers(full_name,email,phone)")
 .order("created_at",{ascending:false});
 
-if(error){
-message("dashboardMessage","Unable to load events: "+error.message);
-emptyRow($("eventRows"),"Unable to load events.",9);
-return;
-}
+if(error){empty("eventRows",error.message,9);return}
 
-const events=data||[];
+eventCache=data||[];
+$("totalEvents").textContent=eventCache.length;
+$("newEvents").textContent=eventCache.filter(x=>x.status==="New").length;
+$("confirmedEvents").textContent=eventCache.filter(x=>x.status==="Confirmed").length;
+$("completedEvents").textContent=eventCache.filter(x=>x.status==="Completed").length;
 
-$("totalEvents").textContent=events.length;
-$("newEvents").textContent=events.filter(e=>e.status==="New").length;
-$("confirmedEvents").textContent=events.filter(e=>e.status==="Confirmed").length;
-$("completedEvents").textContent=events.filter(e=>e.status==="Completed").length;
-$("cancelledEvents").textContent=events.filter(e=>e.status==="Cancelled").length;
+let b=$("eventRows");
+b.replaceChildren();
 
-$("totalBudget").textContent=money(
-events.filter(e=>e.status!=="Cancelled")
-.reduce((sum,e)=>sum+Number(e.budget||0),0)
-);
+if(!eventCache.length){empty("eventRows","No events",9);return}
 
-const tbody=$("eventRows");
-tbody.replaceChildren();
+eventCache.forEach(e=>{
+let r=document.createElement("tr");
+[e.event_id,e.customers?.full_name,[e.customers?.email,e.customers?.phone].filter(Boolean).join(" / "),e.event_name,dateText(e.event_date),e.venue,money(e.budget)].forEach(v=>td(r,v));
 
-if(!events.length)emptyRow(tbody,"No event registrations found.",9);
+let s=document.createElement("select");
+["New","Confirmed","Completed","Cancelled"].forEach(v=>s.add(new Option(v,v)));
+s.value=e.status||"New";
 
-for(const e of events){
-const tr=document.createElement("tr");
+let st=td(r,"");
+st.append(s);
 
-cell(tr,e.event_id);
-cell(tr,e.customers?.full_name);
-cell(tr,[e.customers?.email,e.customers?.phone].filter(Boolean).join(" / "));
-cell(tr,e.event_name);
-cell(tr,dateText(e.event_date));
-cell(tr,e.venue);
-cell(tr,money(e.budget));
-
-const statusTd=document.createElement("td");
-const select=document.createElement("select");
-
-["New","Confirmed","Completed","Cancelled"].forEach(s=>{
-const opt=document.createElement("option");
-opt.value=s;
-opt.textContent=s;
-select.appendChild(opt);
-});
-
-select.value=e.status||"New";
-statusTd.appendChild(select);
-tr.appendChild(statusTd);
-
-const actionTd=document.createElement("td");
-
-actionTd.appendChild(button("Save","",async ev=>{
-const saveButton=ev.currentTarget;
-saveButton.disabled=true;
-
-try{
-const {error:updateError}=await supabase.from("events")
-.update({status:select.value}).eq("event_id",e.event_id);
-
-if(updateError)throw updateError;
-
-await loadEvents();
-message("dashboardMessage","Event status updated.");
-}catch(err){
-message("dashboardMessage","Unable to update event: "+err.message);
-}finally{
-saveButton.disabled=false;
-}
+let ac=td(r,"");
+ac.append(btn("Save","",async()=>{
+let {error}=await supabase.from("events").update({status:s.value}).eq("event_id",e.event_id);
+if(error)alert(error.message);
+else loadEvents();
 }));
-
-tr.appendChild(actionTd);
-tbody.appendChild(tr);
-}
-
-message("dashboardMessage","Dashboard data loaded.");
+b.append(r);
+});
 }
 
 async function loadRequests(){
-const tbody=$("requestRows");
-message("requestsMessage","Loading staff registration requests...");
-
-const {data,error}=await supabase.from("staff_registrations")
+let {data,error}=await supabase.from("staff_registrations")
 .select("registration_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
 .order("created_at",{ascending:false});
 
 if(error){
-emptyRow(tbody,"Unable to load requests: "+error.message,11);
-message("requestsMessage","Unable to load requests: "+error.message);
+empty("requestRows",error.message,11);
+msg("requestsMessage",error.message);
 return;
 }
 
-if(!data?.length){
-emptyRow(tbody,"No staff registration requests found.",11);
-message("requestsMessage","Requests loaded.");
-return;
-}
+let b=$("requestRows");
+b.replaceChildren();
 
-tbody.replaceChildren();
+if(!data?.length){empty("requestRows","No requests",11);return}
 
-for(const r of data){
-const tr=document.createElement("tr");
+data.forEach(x=>{
+let r=document.createElement("tr");
+[x.registration_id,x.full_name,x.mobile,x.whatsapp,x.email,x.role,dateText(x.joining_date),x.address,x.status,dateText(x.created_at)].forEach(v=>td(r,v));
 
-cell(tr,r.registration_id);
-cell(tr,r.full_name);
-cell(tr,r.mobile);
-cell(tr,r.whatsapp);
-cell(tr,r.email);
-cell(tr,r.role);
-cell(tr,dateText(r.joining_date));
-cell(tr,r.address);
-cell(tr,r.status);
-cell(tr,dateText(r.created_at));
-
-const td=document.createElement("td");
-
-if(r.status==="Pending"){
-td.appendChild(button("Approve","success",()=>reviewRequest(r,"Approved")));
-td.appendChild(button("Reject","danger",()=>reviewRequest(r,"Rejected")));
+let a=td(r,"");
+if(x.status==="Pending"){
+a.append(
+btn("Approve","success",()=>reviewRequest(x,"Approved")),
+btn("Reject","danger",()=>reviewRequest(x,"Rejected"))
+);
 }else{
-td.textContent="Reviewed";
+a.textContent="Reviewed";
+}
+b.append(r);
+});
 }
 
-tr.appendChild(td);
-tbody.appendChild(tr);
-}
-
-message("requestsMessage","Requests loaded.");
-}
-
-async function reviewRequest(request,decision){
-const actionText=decision==="Approved"?"approve":"reject";
-
-if(!confirm("Are you sure you want to "+actionText+" "+request.full_name+"?"))return;
-
-message("requestsMessage","Processing request...");
+async function reviewRequest(x,status){
+if(!confirm(`${status} ${x.full_name}?`))return;
 
 try{
-if(decision==="Approved"){
-const email=(request.email||"").trim();
+if(status==="Approved"){
+let {data,error}=await supabase.from("staff")
+.select("staff_id").ilike("email",x.email).limit(1);
+if(error)throw error;
 
-if(!email)throw new Error("Application email is missing.");
-
-const {data:existingStaff,error:lookupError}=await supabase.from("staff")
-.select("staff_id,full_name,email,status")
-.ilike("email",email).limit(1);
-
-if(lookupError)throw lookupError;
-
-if(!existingStaff?.length){
-const staffData={
-full_name:request.full_name,
-mobile:request.mobile,
-whatsapp:request.whatsapp,
-email,
-role:request.role,
-joining_date:request.joining_date,
-address:request.address,
+if(!data?.length){
+let {error:ie}=await supabase.from("staff").insert([{
+full_name:x.full_name,
+mobile:x.mobile,
+whatsapp:x.whatsapp,
+email:x.email,
+role:x.role,
+joining_date:x.joining_date,
+address:x.address,
 status:"Active"
-};
-
-const {error:insertError}=await supabase.from("staff").insert([staffData]);
-if(insertError)throw insertError;
+}]);
+if(ie)throw ie;
 }
 }
 
-const {data:updated,error:requestError}=await supabase.from("staff_registrations")
-.update({status:decision})
-.eq("registration_id",request.registration_id)
-.eq("status","Pending")
-.select("registration_id");
+let {data,error}=await supabase.from("staff_registrations")
+.update({status}).eq("registration_id",x.registration_id)
+.eq("status","Pending").select("registration_id");
 
-if(requestError)throw requestError;
+if(error)throw error;
+if(!data?.length)throw Error("Request status was not changed");
 
-if(!updated?.length){
-throw new Error("Application status was not updated. Refresh requests and verify its current status.");
-}
-
-message("requestsMessage","Request "+decision.toLowerCase()+" successfully.");
-
-await Promise.all([loadRequests(),loadStaff()]);
-
-}catch(err){
-console.error("Staff request review failed:",err);
-message("requestsMessage","Unable to "+actionText+" request: "+err.message);
-}
+await loadRequests();
+await loadStaff();
+}catch(e){alert(e.message)}
 }
 
 async function loadStaff(){
-message("staffMessage","Loading staff records...");
-
-const {data,error}=await supabase.from("staff")
+let {data,error}=await supabase.from("staff")
 .select("staff_id,full_name,mobile,whatsapp,email,role,joining_date,address,status,created_at")
 .order("created_at",{ascending:false});
 
 if(error){
-staffCache=[];
-emptyRow($("staffRows"),"Unable to load staff: "+error.message,10);
-message("staffMessage","Check staff permissions: "+error.message);
+empty("staffRows",error.message,10);
+msg("staffMessage",error.message);
 return;
 }
 
 staffCache=data||[];
-
 $("staffTotal").textContent=staffCache.length;
-$("staffActive").textContent=staffCache.filter(s=>String(s.status||"").toLowerCase()==="active").length;
-$("staffInactive").textContent=staffCache.filter(s=>String(s.status||"").toLowerCase()==="inactive").length;
-
+$("staffActive").textContent=staffCache.filter(x=>x.status==="Active").length;
+$("staffInactive").textContent=staffCache.filter(x=>x.status==="Inactive").length;
+$("staffCount").textContent=staffCache.length;
 renderStaff();
-message("staffMessage","Staff records loaded.");
 }
 
 function renderStaff(){
-const search=$("staffSearch").value.trim().toLowerCase();
-const status=$("staffStatusFilter").value;
+let q=$("staffSearch").value.toLowerCase();
+let f=$("staffFilter").value;
 
-const filtered=staffCache.filter(s=>{
-const matchesSearch=[
-s.full_name,s.mobile,s.whatsapp,s.email,s.role
-].some(v=>String(v||"").toLowerCase().includes(search));
+let list=staffCache.filter(x=>
+(f==="All"||x.status===f)&&
+[x.full_name,x.mobile,x.whatsapp,x.email,x.role].some(v=>String(v||"").toLowerCase().includes(q))
+);
 
-const matchesStatus=status==="All"||
-String(s.status||"").toLowerCase()===status.toLowerCase();
+let b=$("staffRows");
+b.replaceChildren();
 
-return matchesSearch&&matchesStatus;
+if(!list.length){empty("staffRows","No staff found",10);return}
+
+list.forEach(x=>{
+let r=document.createElement("tr");
+[x.staff_id,x.full_name,x.mobile,x.whatsapp,x.email,x.role,dateText(x.joining_date),x.address,x.status].forEach(v=>td(r,v));
+
+let a=td(r,"");
+a.append(
+btn(x.status==="Active"?"Deactivate":"Activate","secondary",async()=>{
+let {error}=await supabase.from("staff").update({status:x.status==="Active"?"Inactive":"Active"}).eq("staff_id",x.staff_id);
+if(error)alert(error.message);else loadStaff();
+}),
+btn("Edit","",()=>editStaff(x)),
+btn("Delete","danger",async()=>{
+if(confirm("Delete this staff record?")){
+let {error}=await supabase.from("staff").delete().eq("staff_id",x.staff_id);
+if(error)alert(error.message);else loadStaff();
+}
+})
+);
+b.append(r);
+});
+}
+
+async function editStaff(x){
+let fields=["full_name","mobile","whatsapp","email","role","joining_date","address"];
+let updates={};
+
+for(let k of fields){
+let v=prompt(k.replace("_"," "),x[k]||"");
+if(v===null)return;
+updates[k]=v.trim()||null;
+}
+
+let {error}=await supabase.from("staff").update(updates).eq("staff_id",x.staff_id);
+if(error)alert(error.message);
+else loadStaff();
+}
+
+/* QUOTATION ITEMS */
+
+function addQItem(item={description:"",quantity:1,unit_price:0}){
+let row=document.createElement("div");
+row.className="item-row";
+
+row.innerHTML=`
+<input class="qi-desc" placeholder="Service / item" value="${esc(item.description)}">
+<input class="qi-qty" type="number" min=".01" step=".01" value="${Number(item.quantity)||1}" aria-label="Quantity">
+<input class="qi-price" type="number" min="0" step=".01" value="${Number(item.unit_price)||0}" aria-label="Unit price">
+<input class="qi-total" readonly value="${money((Number(item.quantity)||1)*(Number(item.unit_price)||0))}">
+<button type="button" class="danger qi-remove">×</button>`;
+
+$("quotationItems").append(row);
+row.querySelectorAll("input").forEach(i=>i.addEventListener("input",calcQuotation));
+row.querySelector(".qi-remove").onclick=()=>{row.remove();calcQuotation()};
+calcQuotation();
+}
+
+function getQItems(){
+return [...$("quotationItems").children].map(r=>({
+description:r.querySelector(".qi-desc").value.trim(),
+quantity:Number(r.querySelector(".qi-qty").value),
+unit_price:Number(r.querySelector(".qi-price").value)
+})).filter(x=>x.description&&x.quantity>0&&x.unit_price>=0);
+}
+
+function totals(items=getQItems()){
+let subtotal=items.reduce((a,x)=>a+x.quantity*x.unit_price,0);
+let discount=Math.max(0,Number($("qDiscount").value)||0);
+let taxable=Math.max(0,subtotal-discount);
+let gst=taxable*Math.max(0,Number($("qGst").value)||0)/100;
+return{subtotal,discount,gst,total:taxable+gst};
+}
+
+function calcQuotation(){
+let items=[...$("quotationItems").children].map(r=>({
+quantity:Number(r.querySelector(".qi-qty").value)||0,
+unit_price:Number(r.querySelector(".qi-price").value)||0
+}));
+
+items.forEach((x,i)=>{
+$("quotationItems").children[i].querySelector(".qi-total").value=money(x.quantity*x.unit_price);
 });
 
-const tbody=$("staffRows");
-tbody.replaceChildren();
-
-if(!filtered.length){
-emptyRow(tbody,"No matching staff found.",10);
-return;
+let t=totals(items);
+$("qSubtotal").textContent=money(t.subtotal);
+$("qDiscountView").textContent=money(t.discount);
+$("qGstView").textContent=money(t.gst);
+$("qGrand").textContent=money(t.total);
 }
 
-for(const s of filtered){
-const tr=document.createElement("tr");
-
-cell(tr,s.staff_id);
-cell(tr,s.full_name);
-cell(tr,s.mobile);
-cell(tr,s.whatsapp);
-cell(tr,s.email);
-cell(tr,s.role);
-cell(tr,dateText(s.joining_date));
-cell(tr,s.address);
-cell(tr,s.status);
-
-const td=document.createElement("td");
-
-td.appendChild(button(
-String(s.status||"").toLowerCase()==="active"?"Set Inactive":"Set Active",
-"secondary",
-()=>changeStaffStatus(s)
-));
-
-td.appendChild(button("Edit","",()=>editStaff(s)));
-td.appendChild(button("Delete","danger",()=>deleteStaff(s)));
-
-tr.appendChild(td);
-tbody.appendChild(tr);
-}
+function resetQ(){
+$("quotationId").value="";
+["qCustomer","qPhone","qEmail","qEvent","qDate","qVenue","qValid","qNotes"].forEach(id=>$(id).value="");
+$("qGst").value="0";
+$("qDiscount").value="0";
+$("quotationItems").replaceChildren();
+addQItem();
+$("quotationFormTitle").textContent="Create Quotation";
+msg("quotationMessage","");
 }
 
-async function editStaff(s){
-const full_name=prompt("Staff Name:",s.full_name||"");
-if(full_name===null)return;
-
-const mobile=prompt("Mobile Number:",s.mobile||"");
-if(mobile===null)return;
-
-const whatsapp=prompt("WhatsApp Number:",s.whatsapp||"");
-if(whatsapp===null)return;
-
-const email=prompt("Email:",s.email||"");
-if(email===null)return;
-
-const role=prompt("Staff Role:",s.role||"");
-if(role===null)return;
-
-const joining_date=prompt("Joining Date (YYYY-MM-DD):",s.joining_date||"");
-if(joining_date===null)return;
-
-const address=prompt("Address:",s.address||"");
-if(address===null)return;
-
-if(!full_name.trim()||!mobile.trim()){
-alert("Name and mobile number are required.");
-return;
+function quotationNumber(){
+let d=new Date(),y=d.getFullYear();
+return `OP-Q-${y}-${String(Date.now()).slice(-6)}`;
 }
 
-if(email.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){
-alert("Please enter a valid email address.");
-return;
+function invoiceNumber(){
+let d=new Date();
+return `OP-INV-${d.getFullYear()}-${String(Date.now()).slice(-6)}`;
 }
 
-if(joining_date.trim()&&!/^\d{4}-\d{2}-\d{2}$/.test(joining_date.trim())){
-alert("Enter joining date in YYYY-MM-DD format.");
-return;
-}
+/* SAVE QUOTATION */
 
-message("staffMessage","Saving staff details...");
+async function saveQuotation(){
+try{
+let items=getQItems();
 
-const updates={
-full_name:full_name.trim(),
-mobile:mobile.trim(),
-whatsapp:whatsapp.trim()||null,
-email:email.trim()||null,
-role:role.trim(),
-joining_date:joining_date.trim()||null,
-address:address.trim()||null
+if(!$("qCustomer").value.trim()||!digits($("qPhone").value))
+throw Error("Customer name and WhatsApp number are required.");
+
+if(!items.length)throw Error("Add at least one valid service item.");
+
+let t=totals(items);
+let id=$("quotationId").value;
+
+let record={
+quotation_no:id?quotationCache.find(x=>String(x.quotation_id)===id)?.quotation_no:quotationNumber(),
+customer_name:$("qCustomer").value.trim(),
+customer_phone:digits($("qPhone").value),
+customer_email:$("qEmail").value.trim()||null,
+event_name:$("qEvent").value.trim()||null,
+event_date:$("qDate").value||null,
+venue:$("qVenue").value.trim()||null,
+valid_until:$("qValid").value||null,
+subtotal:t.subtotal,
+discount:t.discount,
+gst_rate:Number($("qGst").value)||0,
+gst_amount:t.gst,
+total_amount:t.total,
+notes:$("qNotes").value.trim()||null,
+status:"Pending"
 };
 
-const {error}=await supabase.from("staff")
-.update(updates).eq("staff_id",s.staff_id);
+let result;
+
+if(id){
+result=await supabase.from("quotations").update(record)
+.eq("quotation_id",id).select("quotation_id").single();
+}else{
+result=await supabase.from("quotations").insert(record)
+.select("quotation_id").single();
+}
+
+if(result.error)throw result.error;
+
+let qid=result.data.quotation_id;
+
+let del=await supabase.from("quotation_items").delete().eq("quotation_id",qid);
+if(del.error)throw del.error;
+
+let ins=await supabase.from("quotation_items").insert(items.map(x=>({
+...x,
+quotation_id:qid,
+line_total:x.quantity*x.unit_price
+})));
+
+if(ins.error)throw ins.error;
+
+msg("quotationMessage","Quotation saved. Generate PDF and share it using WhatsApp from the quotation history.");
+resetQ();
+await loadQuotations();
+
+}catch(e){
+msg("quotationMessage","Save failed: "+e.message);
+}
+}
+
+/* PDF GENERATION */
+
+function pdfDoc(kind,record,items){
+let doc=new jsPDF();
+
+doc.setFillColor(8,17,31);
+doc.rect(0,0,210,35,"F");
+doc.setTextColor(255,157,0);
+doc.setFontSize(20);
+doc.text("OCEAN PRODUCTION",14,16);
+doc.setTextColor(255,255,255);
+doc.setFontSize(10);
+doc.text(kind,14,25);
+
+doc.setTextColor(25,35,50);
+doc.setFontSize(11);
+
+let y=48;
+
+doc.text(`${kind} No: ${record.quotation_no||record.invoice_no||""}`,14,y);
+doc.text(`Date: ${dateText(record.created_at||record.issue_date||new Date().toISOString())}`,130,y);
+
+y+=10;
+doc.text(`Customer: ${record.customer_name}`,14,y);
+y+=7;
+doc.text(`WhatsApp: ${record.customer_phone||""}`,14,y);
+
+y+=7;
+if(record.event_name){
+doc.text(`Event: ${record.event_name}`,14,y);
+y+=7;
+}
+if(record.venue){
+doc.text(`Venue: ${record.venue}`,14,y);
+y+=7;
+}
+
+y+=5;
+doc.setFillColor(240,240,240);
+doc.rect(14,y-5,182,9,"F");
+
+doc.text("Description",17,y+1);
+doc.text("Qty",125,y+1);
+doc.text("Rate",145,y+1);
+doc.text("Amount",174,y+1);
+
+y+=12;
+
+items.forEach(it=>{
+if(y>265){
+doc.addPage();
+y=20;
+}
+
+doc.text(String(it.description||"").slice(0,55),17,y);
+doc.text(String(it.quantity),125,y);
+doc.text(money(it.unit_price).replace("₹","Rs "),145,y);
+doc.text(money(it.line_total??it.quantity*it.unit_price).replace("₹","Rs "),174,y);
+y+=8;
+});
+
+y+=7;
+doc.text(`Subtotal: ${money(record.subtotal)}`,140,y);
+y+=7;
+doc.text(`Discount: ${money(record.discount)}`,140,y);
+y+=7;
+doc.text(`GST: ${money(record.gst_amount)}`,140,y);
+y+=8;
+
+doc.setFontSize(14);
+doc.text(`Grand Total: ${money(record.total_amount)}`,140,y);
+y+=12;
+
+doc.setFontSize(9);
+if(record.notes){
+doc.text(doc.splitTextToSize(`Notes: ${record.notes}`,180),14,y);
+}
+
+doc.text("Thank you for choosing Ocean Production.",14,285);
+return doc;
+}
+
+async function getQuoteItems(id){
+let {data,error}=await supabase.from("quotation_items")
+.select("description,quantity,unit_price,line_total")
+.eq("quotation_id",id).order("item_id");
+
+if(error)throw error;
+return data||[];
+}
+
+async function quotePDF(q){
+try{
+let items=await getQuoteItems(q.quotation_id);
+let doc=pdfDoc("QUOTATION",q,items);
+let blob=doc.output("blob");
+let file=new File([blob],`${q.quotation_no}.pdf`,{type:"application/pdf"});
+let path=`quotations/${q.quotation_no}.pdf`;
+
+let up=await supabase.storage.from("documents").upload(path,file,{
+upsert:true,
+contentType:"application/pdf"
+});
+
+if(up.error)throw up.error;
+
+let {data}=supabase.storage.from("documents").getPublicUrl(path);
+let url=data.publicUrl;
+
+doc.save(`${q.quotation_no}.pdf`);
+return url;
+
+}catch(e){
+throw Error("PDF created locally, but cloud upload failed: "+e.message+". Check the public documents bucket and storage policies.");
+}
+}
+
+async function shareQuote(q){
+try{
+let url=await quotePDF(q);
+let phone=digits(q.customer_phone);
+
+let text=`Hello ${q.customer_name}, your Ocean Production quotation ${q.quotation_no} is ready. Total: ${money(q.total_amount)}. View/download: ${url}`;
+
+window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`,"_blank","noopener");
+
+await supabase.from("quotations")
+.update({status:"Sent",pdf_url:url})
+.eq("quotation_id",q.quotation_id);
+
+await loadQuotations();
+
+}catch(e){
+alert(e.message);
+}
+}
+
+async function editQuote(q){
+try{
+let items=await getQuoteItems(q.quotation_id);
+
+$("quotationId").value=q.quotation_id;
+$("qCustomer").value=q.customer_name||"";
+$("qPhone").value=q.customer_phone||"";
+$("qEmail").value=q.customer_email||"";
+$("qEvent").value=q.event_name||"";
+$("qDate").value=q.event_date||"";
+$("qVenue").value=q.venue||"";
+$("qValid").value=q.valid_until||"";
+$("qGst").value=q.gst_rate||0;
+$("qDiscount").value=q.discount||0;
+$("qNotes").value=q.notes||"";
+
+$("quotationItems").replaceChildren();
+items.forEach(addQItem);
+
+$("quotationFormTitle").textContent="Edit "+q.quotation_no;
+switchView("quotations");
+calcQuotation();
+
+}catch(e){
+alert(e.message);
+}
+}
+
+async function setQuoteStatus(q,status){
+let {error}=await supabase.from("quotations")
+.update({status}).eq("quotation_id",q.quotation_id);
+
+if(error)alert(error.message);
+else loadQuotations();
+}
+
+async function convertQuote(q){
+if(q.status!=="Accepted"){
+alert("Mark this quotation Accepted before converting it.");
+return;
+}
+
+if(!confirm(`Create invoice from ${q.quotation_no}?`))return;
+
+try{
+let items=await getQuoteItems(q.quotation_id);
+
+let {data:inv,error}=await supabase.from("invoices").insert({
+invoice_no:invoiceNumber(),
+quotation_id:q.quotation_id,
+customer_name:q.customer_name,
+customer_phone:q.customer_phone,
+customer_email:q.customer_email,
+event_name:q.event_name,
+event_date:q.event_date,
+venue:q.venue,
+subtotal:q.subtotal,
+discount:q.discount,
+gst_rate:q.gst_rate,
+gst_amount:q.gst_amount,
+total_amount:q.total_amount,
+paid_amount:0,
+balance_amount:q.total_amount,
+status:"Pending"
+}).select("invoice_id").single();
+
+if(error)throw error;
+
+let rows=items.map(x=>({
+invoice_id:inv.invoice_id,
+description:x.description,
+quantity:x.quantity,
+unit_price:x.unit_price,
+line_total:x.line_total
+}));
+
+let ins=await supabase.from("invoice_items").insert(rows);
+if(ins.error)throw ins.error;
+
+await supabase.from("quotations")
+.update({status:"Converted"})
+.eq("quotation_id",q.quotation_id);
+
+await loadInvoices();
+await loadQuotations();
+alert("Invoice created successfully.");
+
+}catch(e){
+alert("Invoice conversion failed: "+e.message);
+}
+}
+
+/* QUOTATION HISTORY */
+
+async function loadQuotations(){
+let {data,error}=await supabase.from("quotations")
+.select("*").order("created_at",{ascending:false});
 
 if(error){
-message("staffMessage","Update failed: "+error.message);
-alert("Update failed: "+error.message);
+empty("quotationRows","Unable to load quotations: "+error.message,7);
+msg("quotationMessage","Database setup required: "+error.message);
 return;
 }
 
-message("staffMessage","Staff details updated successfully.");
-await loadStaff();
+quotationCache=data||[];
+$("quotationCount").textContent=quotationCache.length;
+renderQuotations();
 }
 
-async function changeStaffStatus(s){
-const current=String(s.status||"").toLowerCase();
-const status=current==="active"?"Inactive":"Active";
+function renderQuotations(){
+let q=$("quotationSearch").value.toLowerCase();
 
-if(!confirm("Change "+s.full_name+"'s status to "+status+"?"))return;
+let list=quotationCache.filter(x=>
+[x.quotation_no,x.customer_name,x.event_name]
+.some(v=>String(v||"").toLowerCase().includes(q))
+);
 
-message("staffMessage","Updating staff status...");
+let b=$("quotationRows");
+b.replaceChildren();
 
-const {data,error}=await supabase.from("staff")
-.update({status})
-.eq("staff_id",s.staff_id)
-.select("staff_id,status");
+if(!list.length){
+empty("quotationRows","No quotations found",7);
+return;
+}
+
+list.forEach(x=>{
+let r=document.createElement("tr");
+[x.quotation_no,x.customer_name,x.event_name,dateText(x.created_at),money(x.total_amount),x.status].forEach(v=>td(r,v));
+
+let a=td(r,"");
+
+a.append(
+btn("PDF + WhatsApp","success",()=>shareQuote(x)),
+btn("Edit","",()=>editQuote(x))
+);
+
+let s=document.createElement("select");
+["Pending","Sent","Accepted","Rejected","Converted"].forEach(v=>s.add(new Option(v,v)));
+s.value=x.status||"Pending";
+s.onchange=()=>setQuoteStatus(x,s.value);
+
+a.append(s);
+a.append(btn("Make Invoice","secondary",()=>convertQuote(x)));
+
+a.append(btn("Delete","danger",async()=>{
+if(confirm("Delete this quotation and its items?")){
+let {error}=await supabase.from("quotations")
+.delete().eq("quotation_id",x.quotation_id);
+
+if(error)alert(error.message);
+else loadQuotations();
+}
+}));
+
+b.append(r);
+});
+}
+
+/* INVOICES */
+
+async function loadInvoices(){
+let {data,error}=await supabase.from("invoices")
+.select("*").order("created_at",{ascending:false});
 
 if(error){
-message("staffMessage","Unable to change status: "+error.message);
+empty("invoiceRows","Unable to load invoices: "+error.message,9);
 return;
 }
 
-if(!data?.length){
-message("staffMessage","No staff row updated. Check admin UPDATE permission.");
+invoiceCache=data||[];
+$("invoiceCount").textContent=invoiceCache.length;
+renderInvoices();
+
+let sel=$("paymentInvoice");
+sel.replaceChildren(new Option("Select invoice",""));
+
+invoiceCache.forEach(x=>
+sel.add(new Option(`${x.invoice_no} — ${x.customer_name} — Balance ${money(x.balance_amount)}`,x.invoice_id))
+);
+}
+
+function renderInvoices(){
+let q=$("invoiceSearch").value.toLowerCase();
+
+let list=invoiceCache.filter(x=>
+[x.invoice_no,x.customer_name]
+.some(v=>String(v||"").toLowerCase().includes(q))
+);
+
+let b=$("invoiceRows");
+b.replaceChildren();
+
+if(!list.length){
+empty("invoiceRows","No invoices found",9);
 return;
 }
 
-await loadStaff();
-message("staffMessage",s.full_name+"'s status is now "+status+".");
+list.forEach(x=>{
+let r=document.createElement("tr");
+
+[
+x.invoice_no,
+x.customer_name,
+x.quotation_id,
+dateText(x.created_at),
+money(x.total_amount),
+money(x.paid_amount),
+money(x.balance_amount),
+x.status
+].forEach(v=>td(r,v));
+
+let a=td(r,"");
+
+a.append(
+btn("PDF","",()=>invoicePDF(x)),
+btn("Delete","danger",async()=>{
+if(confirm("Delete invoice? Payment records may prevent deletion.")){
+let {error}=await supabase.from("invoices")
+.delete().eq("invoice_id",x.invoice_id);
+
+if(error)alert(error.message);
+else loadInvoices();
+}
+})
+);
+
+b.append(r);
+});
 }
 
-async function deleteStaff(s){
-if(!confirm("Permanently delete "+s.full_name+"? This cannot be undone."))return;
+async function invoicePDF(inv){
+try{
+let {data,error}=await supabase.from("invoice_items")
+.select("description,quantity,unit_price,line_total")
+.eq("invoice_id",inv.invoice_id);
 
-message("staffMessage","Deleting staff record...");
+if(error)throw error;
 
-const {data,error}=await supabase.from("staff")
-.delete()
-.eq("staff_id",s.staff_id)
-.select("staff_id");
+pdfDoc("TAX INVOICE",inv,data||[]).save(`${inv.invoice_no}.pdf`);
 
-if(error){
-message("staffMessage","Unable to delete staff: "+error.message);
-return;
+}catch(e){
+alert(e.message);
+}
 }
 
-if(!data?.length){
-message("staffMessage","No staff row deleted. Check admin DELETE permission.");
-return;
+async function recordPayment(){
+try{
+let id=$("paymentInvoice").value;
+let amount=Number($("paymentAmount").value);
+
+if(!id||!(amount>0))
+throw Error("Select an invoice and enter a valid payment amount.");
+
+let inv=invoiceCache.find(x=>String(x.invoice_id)===String(id));
+
+if(!inv)throw Error("Invoice not found. Refresh invoices.");
+
+if(amount>Number(inv.balance_amount)+.005)
+throw Error("Payment exceeds outstanding balance.");
+
+let {error}=await supabase.from("invoice_payments").insert({
+invoice_id:id,
+amount,
+payment_method:$("paymentMethod").value,
+reference_note:$("paymentReference").value.trim()||null
+});
+
+if(error)throw error;
+
+let paid=Number(inv.paid_amount||0)+amount;
+let balance=Math.max(0,Number(inv.total_amount)-paid);
+let status=balance<=.005?"Paid":paid>0?"Partial":"Pending";
+
+let up=await supabase.from("invoices").update({
+paid_amount:paid,
+balance_amount:balance,
+status
+}).eq("invoice_id",id);
+
+if(up.error)throw up.error;
+
+$("paymentAmount").value="";
+$("paymentReference").value="";
+
+msg("paymentMessage","Payment recorded successfully.");
+await loadInvoices();
+
+}catch(e){
+msg("paymentMessage","Payment failed: "+e.message);
+}
 }
 
-await loadStaff();
-message("staffMessage","Staff record deleted.");
+/* REFRESH AND LOGIN */
+
+async function refreshAll(){
+await Promise.allSettled([
+loadEvents(),
+loadCustomers(),
+loadRequests(),
+loadStaff(),
+loadQuotations(),
+loadInvoices()
+]);
+
+msg("globalMessage","Data refresh completed. Review any section-specific error messages.");
 }
 
 async function showDashboard(user){
-const admin=await isAdmin(user.id);
+let a=await adminFor(user.id);
 
-if(!admin){
+if(!a){
 await supabase.auth.signOut();
-$("dashboard").classList.add("hidden");
-$("loginPanel").classList.remove("hidden");
-message("loginMessage","This account is not registered as an Ocean Production admin.");
-return;
+throw Error("This account is not registered in the admins table.");
 }
 
 $("loginPanel").classList.add("hidden");
 $("dashboard").classList.remove("hidden");
 
-$("welcome").textContent="Signed in as "+(admin.full_name||admin.email||"Administrator");
+$("welcome").textContent=`Signed in as ${a.full_name||a.email||"Administrator"}`;
+$("headerUser").textContent=a.email||"";
 
-await Promise.allSettled([
-loadEvents(),
-loadCustomers(),
-loadRequests(),
-loadStaff()
-]);
+await refreshAll();
 }
 
-$("loginForm").addEventListener("submit",async event=>{
-event.preventDefault();
-
+$("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();
 $("loginButton").disabled=true;
-message("loginMessage","Signing in...");
+msg("loginMessage","Signing in...");
 
 try{
-const {data,error}=await supabase.auth.signInWithPassword({
+let {data,error}=await supabase.auth.signInWithPassword({
 email:$("email").value.trim(),
 password:$("password").value
 });
 
 if(error)throw error;
+
 await showDashboard(data.user);
 
-}catch(err){
-message("loginMessage","Login failed: "+err.message);
+}catch(e){
+msg("loginMessage","Login failed: "+e.message);
 }finally{
 $("loginButton").disabled=false;
 }
 });
 
-$("refreshButton").addEventListener("click",async()=>{
-try{
-const {data,error}=await supabase.auth.getUser();
-if(error)throw error;
-if(!data.user)throw new Error("Please sign in again.");
-await showDashboard(data.user);
-}catch(err){
-message("dashboardMessage","Refresh failed: "+err.message);
-}
-});
-
-$("refreshRequestsButton").addEventListener("click",loadRequests);
-
-$("staffSearch").addEventListener("input",renderStaff);
-$("staffStatusFilter").addEventListener("change",renderStaff);
-
-$("refreshStaffButton").addEventListener("click",async()=>{
-$("staffSearch").value="";
-$("staffStatusFilter").value="All";
-await loadStaff();
-});
-
-$("logoutButton").addEventListener("click",async()=>{
-const {error}=await supabase.auth.signOut();
+$("logout").onclick=async()=>{
+let {error}=await supabase.auth.signOut();
 
 if(error){
-message("dashboardMessage","Sign out failed: "+error.message);
+alert(error.message);
 return;
 }
 
 $("dashboard").classList.add("hidden");
 $("loginPanel").classList.remove("hidden");
-$("loginForm").reset();
-message("loginMessage","You have signed out.");
-});
+$("headerUser").textContent="";
+};
 
-async function restoreSession(){
+$("refreshAll").onclick=refreshAll;
+$("refreshRequests").onclick=loadRequests;
+$("refreshStaff").onclick=loadStaff;
+
+$("staffSearch").oninput=renderStaff;
+$("staffFilter").onchange=renderStaff;
+
+$("addQItem").onclick=()=>addQItem();
+$("saveQuotation").onclick=saveQuotation;
+$("resetQuotation").onclick=resetQ;
+
+$("qDiscount").oninput=calcQuotation;
+$("qGst").oninput=calcQuotation;
+
+$("refreshQuotations").onclick=loadQuotations;
+$("quotationSearch").oninput=renderQuotations;
+
+$("refreshInvoices").onclick=loadInvoices;
+$("invoiceSearch").oninput=renderInvoices;
+$("recordPayment").onclick=recordPayment;
+
+resetQ();
+
 try{
-const {data,error}=await supabase.auth.getSession();
+let {data,error}=await supabase.auth.getSession();
+
 if(error)throw error;
 if(data.session?.user)await showDashboard(data.session.user);
-}catch(err){
-message("loginMessage","Unable to restore session: "+err.message);
-}
-}
 
-restoreSession();
+}catch(e){
+msg("loginMessage",e.message);
+}
 </script>
 </body>
 </html>
