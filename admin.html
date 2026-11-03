@@ -1127,52 +1127,186 @@ alert(e.message);
 }
 
 async function recordPayment(){
-try{
-let id=$("paymentInvoice").value;
-let amount=Number($("paymentAmount").value);
+    let waWindow = null;
 
-if(!id||!(amount>0))
-throw Error("Select an invoice and enter a valid payment amount.");
+    try {
+        let id = $("paymentInvoice").value;
+        let amount = Number($("paymentAmount").value);
 
-let inv=invoiceCache.find(x=>String(x.invoice_id)===String(id));
+        if (!id || !(amount > 0)) {
+            throw Error("Select an invoice and enter a valid amount.");
+        }
 
-if(!inv)throw Error("Invoice not found. Refresh invoices.");
+        let inv = invoiceCache.find(
+            x => String(x.invoice_id) === String(id)
+        );
 
-if(amount>Number(inv.balance_amount)+.005)
-throw Error("Payment exceeds outstanding balance.");
+        if (!inv) throw Error("Invoice not found. Refresh invoices.");
 
-let {error}=await supabase.from("invoice_payments").insert({
-invoice_id:id,
-amount,
-payment_method:$("paymentMethod").value,
-reference_note:$("paymentReference").value.trim()||null
-});
+        if (amount > Number(inv.balance_amount) + 0.005) {
+            throw Error("Payment exceeds outstanding balance.");
+        }
 
-if(error)throw error;
+        // Open WhatsApp tab early to avoid popup blocking
+        waWindow = window.open("about:blank", "_blank");
 
-let paid=Number(inv.paid_amount||0)+amount;
-let balance=Math.max(0,Number(inv.total_amount)-paid);
-let status=balance<=.005?"Paid":paid>0?"Partial":"Pending";
+        // Save payment and retrieve automatic receipt number
+        let { data: payment, error } = await supabase
+            .from("invoice_payments")
+            .insert({
+                invoice_id: id,
+                amount,
+                payment_method: $("paymentMethod").value,
+                reference_note: $("paymentReference").value.trim() || null
+            })
+            .select("*")
+            .single();
 
-let up=await supabase.from("invoices").update({
-paid_amount:paid,
-balance_amount:balance,
-status
-}).eq("invoice_id",id);
+        if (error) throw error;
 
-if(up.error)throw up.error;
+        // Update invoice balance
+        let paid = Number(inv.paid_amount || 0) + amount;
+        let balance = Math.max(0, Number(inv.total_amount) - paid);
 
-$("paymentAmount").value="";
-$("paymentReference").value="";
+        let status = balance <= 0.005
+            ? "Paid"
+            : paid > 0 ? "Partial" : "Pending";
 
-msg("paymentMessage","Payment recorded successfully.");
-await loadInvoices();
+        let { error: updateError } = await supabase
+            .from("invoices")
+            .update({
+                paid_amount: paid,
+                balance_amount: balance,
+                status
+            })
+            .eq("invoice_id", id);
 
-}catch(e){
-msg("paymentMessage","Payment failed: "+e.message);
+        if (updateError) throw updateError;
+
+        // Generate payment receipt PDF
+        let doc = new jsPDF();
+
+        doc.setFillColor(8, 17, 31);
+        doc.rect(0, 0, 210, 38, "F");
+
+        doc.setTextColor(255, 157, 0);
+        doc.setFontSize(21);
+        doc.text("OCEAN PRODUCTION", 14, 17);
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.text("PAYMENT RECEIPT", 14, 28);
+
+        doc.setTextColor(30, 40, 55);
+        doc.setFontSize(11);
+
+        let y = 52;
+
+        const rows = [
+            ["Receipt Number", payment.receipt_no || "Pending"],
+            ["Invoice Number", inv.invoice_no],
+            ["Customer", inv.customer_name],
+            ["WhatsApp", inv.customer_phone || "—"],
+            ["Payment Date", dateText(payment.payment_date || new Date().toISOString())],
+            ["Payment Method", payment.payment_method],
+            ["Reference", payment.reference_note || "—"]
+        ];
+
+        rows.forEach(([label, value]) => {
+            doc.setFont(undefined, "bold");
+            doc.text(label + ":", 14, y);
+            doc.setFont(undefined, "normal");
+            doc.text(String(value || "—"), 65, y);
+            y += 10;
+        });
+
+        y += 8;
+
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, y - 7, 182, 36, "F");
+
+        doc.setFontSize(12);
+        doc.text("Payment Received:", 20, y + 2);
+
+        doc.setFontSize(18);
+        doc.setTextColor(20, 130, 75);
+        doc.text(money(amount), 20, y + 19);
+
+        y += 43;
+
+        doc.setTextColor(30, 40, 55);
+        doc.setFontSize(11);
+        doc.text("Invoice Total: " + money(inv.total_amount), 14, y);
+        y += 9;
+        doc.text("Total Paid: " + money(paid), 14, y);
+        y += 9;
+        doc.text("Remaining Balance: " + money(balance), 14, y);
+
+        doc.setFontSize(10);
+        doc.text("Thank you for choosing Ocean Production!", 14, 275);
+
+        let fileName = `${payment.receipt_no || "OP-RECEIPT"}.pdf`;
+        let blob = doc.output("blob");
+
+        // Upload receipt to private documents bucket
+        let path = `receipts/${fileName}`;
+
+        let { error: uploadError } = await supabase.storage
+            .from("documents")
+            .upload(path, blob, {
+                upsert: true,
+                contentType: "application/pdf"
+            });
+
+        if (uploadError) throw uploadError;
+
+        // Create temporary secure download link
+        let { data: signed, error: signedError } =
+            await supabase.storage
+                .from("documents")
+                .createSignedUrl(path, 604800);
+
+        if (signedError) throw signedError;
+
+        let receiptUrl = signed.signedUrl;
+
+        // Download receipt
+        doc.save(fileName);
+
+        // Share through WhatsApp
+        let phone = digits(inv.customer_phone);
+
+        let message =
+            `Hello ${inv.customer_name},\n\n` +
+            `Thank you for your payment to Ocean Production!\n\n` +
+            `Receipt: ${payment.receipt_no}\n` +
+            `Invoice: ${inv.invoice_no}\n` +
+            `Amount Received: ${money(amount)}\n` +
+            `Remaining Balance: ${money(balance)}\n\n` +
+            `Download your receipt:\n${receiptUrl}`;
+
+        if (phone) {
+            waWindow.location.href =
+                `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        } else {
+            waWindow.close();
+        }
+
+        $("paymentAmount").value = "";
+        $("paymentReference").value = "";
+
+        msg("paymentMessage",
+            `Payment successful!\nReceipt: ${payment.receipt_no}\nPDF downloaded and WhatsApp opened.`
+        );
+
+        await loadInvoices();
+
+    } catch (e) {
+        if (waWindow && !waWindow.closed) waWindow.close();
+
+        msg("paymentMessage", "Payment failed: " + e.message);
+    }
 }
-}
-
 /* REFRESH AND LOGIN */
 
 async function refreshAll(){
