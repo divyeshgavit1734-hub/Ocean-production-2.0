@@ -130,15 +130,84 @@ header{padding:14px}
 </section>
 
 <section id="view-customers" class="view hidden">
+
 <div class="panel">
-<h2>Customers</h2>
-<div class="table-wrap">
-<table>
-<thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr></thead>
-<tbody id="customerRows"></tbody>
-</table>
+    <h2>Customer Management</h2>
+
+    <div class="toolbar">
+        <input id="customerSearch"
+               placeholder="Search customer name or phone">
+
+        <button id="refreshCustomers" class="secondary">
+            Refresh
+        </button>
+    </div>
+
+    <p id="customerMessage" class="message"></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Registered</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="customerRows"></tbody>
+        </table>
+    </div>
 </div>
+
+<div id="customerProfile" class="panel hidden">
+    <h2>Customer Profile</h2>
+
+    <div id="customerDetails"></div>
+
+    <h3>Business Summary</h3>
+    <div class="stats">
+        <div class="stat">
+            <span>Quotations</span>
+            <strong id="profileQuotes">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>Invoices</span>
+            <strong id="profileInvoices">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>Total Paid</span>
+            <strong id="profilePaid">₹0</strong>
+        </div>
+
+        <div class="stat">
+            <span>Outstanding</span>
+            <strong id="profileBalance">₹0</strong>
+        </div>
+    </div>
+
+    <h3>Quotation History</h3>
+    <div id="profileQuotationHistory"></div>
+
+    <h3>Invoice History</h3>
+    <div id="profileInvoiceHistory"></div>
+
+    <h3>Payment History</h3>
+    <div id="profilePaymentHistory"></div>
+
+    <button id="customerWhatsApp" class="success">
+        Contact on WhatsApp
+    </button>
+
+    <button id="closeCustomerProfile" class="secondary">
+        Close Profile
+    </button>
 </div>
+
 </section>
 
 <section id="view-requests" class="view hidden">
