@@ -405,24 +405,180 @@ if(b)switchView(b.dataset.view);
 });
 
 async function loadCustomers(){
-let {data,error}=await supabase.from("customers")
-.select("customer_id,full_name,email,phone,created_at")
-.order("created_at",{ascending:false});
+    const {data,error}=await supabase
+        .from("customers")
+        .select("customer_id,full_name,email,phone,address,created_at")
+        .order("created_at",{ascending:false});
 
-if(error){empty("customerRows",error.message,5);return}
+    if(error){
+        empty("customerRows",error.message,6);
+        return;
+    }
 
-customerCache=data||[];
-let body=$("customerRows");
-body.replaceChildren();
-
-if(!customerCache.length){empty("customerRows","No customers found",5);return}
-
-customerCache.forEach(c=>{
-let r=document.createElement("tr");
-[c.customer_id,c.full_name,c.email,c.phone,dateText(c.created_at)].forEach(v=>td(r,v));
-body.append(r);
-});
+    customerCache=data||[];
+    renderCustomers();
 }
+
+function renderCustomers(){
+    const search=$("customerSearch").value.toLowerCase();
+
+    const list=customerCache.filter(c=>
+        [c.full_name,c.email,c.phone]
+        .some(v=>String(v||"").toLowerCase().includes(search))
+    );
+
+    const body=$("customerRows");
+    body.replaceChildren();
+
+    if(!list.length){
+        empty("customerRows","No customers found",6);
+        return;
+    }
+
+    list.forEach(c=>{
+        const row=document.createElement("tr");
+
+        [c.customer_id,c.full_name,c.email,c.phone,dateText(c.created_at)]
+        .forEach(v=>td(row,v));
+
+        const action=td(row,"");
+        action.append(btn("View Profile","success",()=>openCustomerProfile(c)));
+
+        body.append(row);
+    });
+}
+
+let activeCustomer=null;
+
+async function openCustomerProfile(customer){
+    try{
+        activeCustomer=customer;
+        $("customerProfile").classList.remove("hidden");
+
+        $("customerDetails").textContent="Loading customer details...";
+        $("profileQuotationHistory").textContent="Loading...";
+        $("profileInvoiceHistory").textContent="Loading...";
+        $("profilePaymentHistory").textContent="Loading...";
+
+        const phone=digits(customer.phone);
+
+        if(!phone) throw Error("Customer phone number is missing.");
+
+        const [qResult,iResult]=await Promise.all([
+            supabase.from("quotations")
+                .select("*")
+                .order("created_at",{ascending:false}),
+
+            supabase.from("invoices")
+                .select("*")
+                .order("created_at",{ascending:false})
+        ]);
+
+        if(qResult.error) throw qResult.error;
+        if(iResult.error) throw iResult.error;
+
+        const quotes=(qResult.data||[]).filter(
+            x=>digits(x.customer_phone)===phone
+        );
+
+        const invoices=(iResult.data||[]).filter(
+            x=>digits(x.customer_phone)===phone
+        );
+
+        const invoiceIds=invoices.map(x=>x.invoice_id);
+
+        let payments=[];
+
+        if(invoiceIds.length){
+            const result=await supabase
+                .from("invoice_payments")
+                .select("*")
+                .in("invoice_id",invoiceIds)
+                .order("payment_date",{ascending:false});
+
+            if(result.error) throw result.error;
+            payments=result.data||[];
+        }
+
+        const totalPaid=payments.reduce(
+            (sum,p)=>sum+Number(p.amount||0),0
+        );
+
+        const outstanding=invoices.reduce(
+            (sum,i)=>sum+Number(i.balance_amount??i.balance??0),0
+        );
+
+        $("customerDetails").innerHTML=`
+            <p><b>Name:</b> ${esc(customer.full_name)}</p>
+            <p><b>Email:</b> ${esc(customer.email||"—")}</p>
+            <p><b>Phone:</b> ${esc(customer.phone)}</p>
+            <p><b>Address:</b> ${esc(customer.address||"—")}</p>
+            <p><b>Customer ID:</b> ${customer.customer_id}</p>
+        `;
+
+        $("profileQuotes").textContent=quotes.length;
+        $("profileInvoices").textContent=invoices.length;
+        $("profilePaid").textContent=money(totalPaid);
+        $("profileBalance").textContent=money(outstanding);
+
+        $("profileQuotationHistory").innerHTML=quotes.length
+            ? quotes.map(q=>`
+                <p>
+                ${esc(q.quotation_no||"Quotation")}
+                — ${esc(q.event_name||"Event")}
+                — ${money(q.grand_total)}
+                — ${esc(q.status)}
+                </p>
+            `).join("")
+            : "<p>No quotations found.</p>";
+
+        $("profileInvoiceHistory").innerHTML=invoices.length
+            ? invoices.map(i=>`
+                <p>
+                ${esc(i.invoice_no||"Invoice")}
+                — ${money(i.total_amount)}
+                — Paid: ${money(i.paid_amount)}
+                — Balance: ${money(i.balance_amount??i.balance)}
+                — ${esc(i.status)}
+                </p>
+            `).join("")
+            : "<p>No invoices found.</p>";
+
+        $("profilePaymentHistory").innerHTML=payments.length
+            ? payments.map(p=>`
+                <p>
+                ${esc(p.receipt_no||"Payment")}
+                — ${money(p.amount)}
+                — ${esc(p.payment_method||"")}
+                — ${dateText(p.payment_date)}
+                </p>
+            `).join("")
+            : "<p>No payments found.</p>";
+
+        $("customerWhatsApp").onclick=()=>{
+            window.open(
+                "https://wa.me/"+phone,
+                "_blank"
+            );
+        };
+
+        $("customerProfile").scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+        });
+
+    }catch(error){
+        alert("Customer profile failed: "+error.message);
+    }
+}
+
+$("customerSearch").addEventListener("input",renderCustomers);
+
+$("refreshCustomers").addEventListener("click",loadCustomers);
+
+$("closeCustomerProfile").addEventListener("click",()=>{
+    $("customerProfile").classList.add("hidden");
+});
 
 async function loadEvents(){
 let {data,error}=await supabase.from("events")
